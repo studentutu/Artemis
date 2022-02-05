@@ -1,8 +1,6 @@
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Artemis.Exceptions;
-using Artemis.Extensions;
 using Artemis.Packets;
 using Artemis.ValueObjects;
 using UnityEngine;
@@ -12,7 +10,7 @@ namespace Artemis.Clients
     public class ReliableClient : ObjectClient
     {
         private readonly Thread _resendReliablePacketsThread;
-        private readonly List<PendingAckMessage> _pendingAckPackets = new();
+        private readonly PendingAckMessageQueue _pendingAckMsgQueue = new();
         private readonly PacketSequenceStorage _outgoingSequenceStorage = new();
         private readonly PacketSequenceStorage _incomingSequenceStorage = new();
 
@@ -43,9 +41,9 @@ namespace Artemis.Clients
 
             if (deliveryMethod == DeliveryMethod.Reliable)
             {
-                lock (_pendingAckPackets)
+                lock (_pendingAckMsgQueue)
                 {
-                    _pendingAckPackets.Add(new PendingAckMessage(message, recepient));
+                    _pendingAckMsgQueue.Add(recepient, message);
                 }
             }
 
@@ -56,15 +54,15 @@ namespace Artemis.Clients
         {
             while (true)
             {
-                Thread.Sleep(64);
+                Thread.Sleep(32);
 
-                lock (_pendingAckPackets)
+                lock (_pendingAckMsgQueue)
                 {
-                    foreach (var address in _pendingAckPackets.GroupBy(pam => pam.Recepient))
+                    foreach (var (address, messages) in _pendingAckMsgQueue.Get())
                     {
-                        foreach (var pam in address.Take(128))
+                        foreach (var message in messages.Take(64))
                         {
-                            SendObject(pam.Message, pam.Recepient);
+                            SendObject(message, address);
                         }
                     }
                 }
@@ -98,9 +96,9 @@ namespace Artemis.Clients
 
         private void HandleAcknowledgement(Ack ack, Address sender)
         {
-            lock (_pendingAckPackets)
+            lock (_pendingAckMsgQueue)
             {
-                _pendingAckPackets.Remove(pam => pam.Message.Sequence == ack.Sequence && pam.Recepient == sender);
+                _pendingAckMsgQueue.Remove(sender, ack.Sequence);
             }
         }
 

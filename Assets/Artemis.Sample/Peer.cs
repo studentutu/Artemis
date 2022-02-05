@@ -3,7 +3,6 @@ using UnityEngine;
 using Artemis.Clients;
 using Artemis.ValueObjects;
 using System.Collections.Generic;
-using UnityEngine.Assertions;
 
 namespace Artemis.Sample
 {
