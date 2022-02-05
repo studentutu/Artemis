@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rUDP.Sandbox
+namespace Artemis.ValueObjects
 {
     [Serializable]
     public class Acknowledgement

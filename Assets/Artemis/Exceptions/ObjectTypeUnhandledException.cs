@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rUDP.Exceptions
+namespace Artemis.Exceptions
 {
     public class ObjectTypeUnhandledException : Exception
     {

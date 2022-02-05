@@ -4,7 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using UnityEngine.Assertions;
 
-namespace rUDP.ValueObjects
+namespace Artemis.ValueObjects
 {
     public readonly struct Address
     {

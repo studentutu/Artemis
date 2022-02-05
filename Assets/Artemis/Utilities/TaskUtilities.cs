@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace rUDP.Sandbox
+namespace Artemis.Utilities
 {
     public static class TaskUtilities
     {

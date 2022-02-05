@@ -1,4 +1,4 @@
-﻿namespace rUDP
+﻿namespace Artemis.Serialization
 {
     public interface ISerializer
     {

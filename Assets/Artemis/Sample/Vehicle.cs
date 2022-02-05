@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rUDP.Sample
+namespace Artemis.Sample
 {
     [Serializable]
     public class Vehicle

@@ -1,41 +1,43 @@
 using System;
+using Artemis.Clients;
+using Artemis.ValueObjects;
 using EasyButtons;
-using rUDP.Sample;
-using rUDP.Sandbox;
-using rUDP.ValueObjects;
 using UnityEngine;
 
-public class Peer : MonoBehaviour
+namespace Artemis.Sample
 {
-    public int BindTo;
-    public int SendTo;
-    public ReliableClient Client;
-    public string VehicleBrand;
-
-    [Button]
-    public void Send()
+    public class Peer : MonoBehaviour
     {
-        var vehicle = new Vehicle {Brand = VehicleBrand};
-        var recipient = Address.FromHostname("localhost", SendTo);
-        Client.SendMessage(vehicle, recipient, DeliveryMethod.Reliable);
-    }
+        public int BindTo;
+        public int SendTo;
+        public ReliableClient Client;
+        public string VehicleBrand;
 
-    [Button]
-    public async void Request()
-    {
-        var recipient = Address.FromHostname("localhost", SendTo);
-        var response = await Client.Request(new DateTime(), recipient);
-        Debug.Log(response);
-    }
+        [Button]
+        public void Send()
+        {
+            var vehicle = new Vehicle {Brand = VehicleBrand};
+            var recipient = Address.FromHostname("localhost", SendTo);
+            Client.SendMessage(vehicle, recipient, DeliveryMethod.Reliable);
+        }
 
-    private void Start()
-    {
-        Client = new ReliableClient(BindTo);
-        Client.Start();
-    }
+        [Button]
+        public async void Request()
+        {
+            var recipient = Address.FromHostname("localhost", SendTo);
+            var response = await Client.Request(new DateTime(), recipient);
+            Debug.Log(response);
+        }
 
-    private void OnDestroy()
-    {
-        Client.Dispose();
+        private void Start()
+        {
+            Client = new ReliableClient(BindTo);
+            Client.Start();
+        }
+
+        private void OnDestroy()
+        {
+            Client.Dispose();
+        }
     }
 }

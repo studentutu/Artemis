@@ -1,4 +1,4 @@
-﻿namespace rUDP.Sandbox
+﻿namespace Artemis.ValueObjects
 {
     public enum DeliveryMethod : byte
     {

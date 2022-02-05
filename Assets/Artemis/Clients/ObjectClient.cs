@@ -1,30 +1,34 @@
+using Artemis.Serialization;
+using Artemis.ValueObjects;
 using rUDP;
-using rUDP.ValueObjects;
 using UnityEngine;
 
-public class ObjectClient : ByteClient
+namespace Artemis.Clients
 {
-    private static readonly ISerializer _serializer = new BinarySerializer();
-
-    public ObjectClient(int port = 0) : base(port)
+    public class ObjectClient : ByteClient
     {
-    }
+        private static readonly ISerializer _serializer = new BinarySerializer();
 
-    public void SendObject<T>(T obj, Address recipient)
-    {
-        var bytes = _serializer.Serialize(obj);
-        SendBytes(bytes, recipient);
-    }
+        public ObjectClient(int port = 0) : base(port)
+        {
+        }
 
-    protected virtual void HandleObject(object obj, Address sender)
-    {
-        Debug.Log($"{nameof(ObjectClient)} received {obj.GetType().Name} bytes from {sender}");
-    }
+        public void SendObject<T>(T obj, Address recipient)
+        {
+            var bytes = _serializer.Serialize(obj);
+            SendBytes(bytes, recipient);
+        }
 
-    protected override void HandleBytes(byte[] bytes, Address sender)
-    {
-        base.HandleBytes(bytes, sender);
-        var obj = _serializer.Deserialize(bytes);
-        HandleObject(obj, sender);
+        protected virtual void HandleObject(object obj, Address sender)
+        {
+            Debug.Log($"{nameof(ObjectClient)} received {obj.GetType().Name} bytes from {sender}");
+        }
+
+        protected override void HandleBytes(byte[] bytes, Address sender)
+        {
+            base.HandleBytes(bytes, sender);
+            var obj = _serializer.Deserialize(bytes);
+            HandleObject(obj, sender);
+        }
     }
 }

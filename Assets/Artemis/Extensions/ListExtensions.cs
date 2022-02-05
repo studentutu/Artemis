@@ -1,10 +1,13 @@
 using System.Collections.Generic;
 
-public static class ListExtensions
+namespace Artemis.Extensions
 {
-    public static void Remove<T>(this List<T> list, System.Predicate<T> match)
+    public static class ListExtensions
     {
-        var itemIndex = list.FindIndex(match);
-        list.RemoveAt(itemIndex);
+        public static void Remove<T>(this List<T> list, System.Predicate<T> match)
+        {
+            var itemIndex = list.FindIndex(match);
+            list.RemoveAt(itemIndex);
+        }
     }
 }

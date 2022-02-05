@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace rUDP.Sandbox
+namespace Artemis.Clients
 {
     public class ArtemisClient : ReliableClient
     {

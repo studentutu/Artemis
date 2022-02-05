@@ -1,16 +1,16 @@
 ﻿using System;
 
-namespace rUDP.Sandbox
+namespace Artemis.ValueObjects
 {
     [Serializable]
-    public class Response
+    public class Request
     {
         public readonly string Id;
         public readonly object Payload;
 
-        public Response(Request request, object payload)
+        public Request(object payload)
         {
-            Id = request.Id;
+            Id = Guid.NewGuid().ToString("N");
             Payload = payload;
         }
     }
