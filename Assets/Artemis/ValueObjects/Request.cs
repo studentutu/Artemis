@@ -1,19 +1,23 @@
 ﻿using Artemis.Clients;
 using Artemis.ValueObjects;
 
-public class Request<T> : Message<T>
+public readonly struct Request<TRequest>
 {
+    public readonly TRequest Payload;
+    public readonly Address Sender;
     private readonly string _id;
     private readonly ArtemisClient _means;
 
-    public Request(string id, T payload, Address sender, ArtemisClient means) : base(payload, sender)
+    public Request(string id, TRequest request, Address sender, ArtemisClient means)
     {
         _id = id;
+        Payload = request;
+        Sender = sender;
         _means = means;
     }
 
-    public void Reply<T>(T obj)
+    public void Reply<TResponse>(TResponse response)
     {
-        _means.SendMessage(new ResponseContainer(_id, obj), Sender, DeliveryMethod.Reliable);
+        _means.SendMessage(new ResponseContainer(_id, response), Sender, DeliveryMethod.Reliable);
     }
 }

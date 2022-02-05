@@ -1,9 +1,9 @@
 ﻿namespace Artemis.ValueObjects
 {
-    public class Message<T>
+    public readonly struct Message<T>
     {
-        public T Payload;
-        public Address Sender;
+        public readonly T Payload;
+        public readonly Address Sender;
 
         public Message(T payload, Address sender)
         {

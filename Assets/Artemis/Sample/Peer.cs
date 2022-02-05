@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Artemis.Clients;
 using Artemis.ValueObjects;
 using EasyButtons;
@@ -13,22 +14,16 @@ namespace Artemis.Sample
         private ArtemisClient _client;
         [SerializeField] private Peer _other;
 
+        private readonly List<Handler> _handlers = new() 
+        {
+            new DateRequestHandler(),
+            new VehicleMessageHandler(),
+        };
+
         private void Awake()
         {
-            _client = new ArtemisClient();
-            _client.RegisterMessageHandler<Vehicle>(HandleVehicleMessage);
-            _client.RegisterRequestHandler<DateTime>(HandleDateTimeRequest);
+            _client = new ArtemisClient(_handlers);
             _client.Start();
-        }
-
-        private void HandleVehicleMessage(Message<Vehicle> message)
-        {
-            Debug.Log($"Received a <b>{message.Payload.Brand}</b> from {message.Sender}");
-        }
-
-        private void HandleDateTimeRequest(Request<DateTime> request)
-        {
-            request.Reply(DateTime.UtcNow);
         }
 
         private void Start()
