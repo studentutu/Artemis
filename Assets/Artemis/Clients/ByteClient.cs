@@ -36,7 +36,7 @@ namespace Artemis.Clients
 
         protected virtual void HandleBytes(byte[] bytes, Address sender)
         {
-            Debug.Log($"{nameof(ByteClient)} received {bytes.Length} bytes from {sender}");
+            //Debug.Log($"{nameof(ByteClient)} received {bytes.Length} bytes from {sender}");
         }
 
         private void Receive(IAsyncResult ar)

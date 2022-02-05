@@ -20,7 +20,7 @@ namespace Artemis.Clients
 
         protected virtual void HandleObject(object obj, Address sender)
         {
-            Debug.Log($"{nameof(ObjectClient)} received {obj.GetType().Name} bytes from {sender}");
+            //Debug.Log($"{nameof(ObjectClient)} received {obj.GetType().Name} bytes from {sender}");
         }
 
         protected override void HandleBytes(byte[] bytes, Address sender)

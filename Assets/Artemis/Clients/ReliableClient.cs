@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Artemis.Exceptions;
 using Artemis.Extensions;
@@ -59,9 +60,12 @@ namespace Artemis.Clients
 
                 lock (_pendingAckPackets)
                 {
-                    foreach (var pam in _pendingAckPackets)
+                    foreach (var address in _pendingAckPackets.GroupBy(pam => pam.Recepient))
                     {
-                        SendObject(pam.Message, pam.Recepient);
+                        foreach (var pam in address.Take(128))
+                        {
+                            SendObject(pam.Message, pam.Recepient);
+                        }
                     }
                 }
             }
@@ -87,7 +91,7 @@ namespace Artemis.Clients
                 SendObject(new Ack {Sequence = message.Sequence}, sender);
             }
 
-            Debug.Log($"Received packet #{message.Sequence}");
+            Debug.Log($"Received packet #{message.Sequence} {Port}");
             _incomingSequenceStorage.Set(sender, message.DeliveryMethod, message.Sequence);
             HandleMessage(message, sender);
         }
