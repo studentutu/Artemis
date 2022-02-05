@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
+using System.Linq;
 using System.Net.Sockets;
 using UnityEngine.Assertions;
 
@@ -11,7 +11,7 @@ namespace Artemis.ValueObjects
         public readonly string Ip;
         public readonly int Port;
 
-        public Address(string ip, int port)
+        private Address(string ip, int port)
         {
             Assert.IsTrue(IPAddress.TryParse(ip, out _), $"IPAddress '{ip}' its not a valid!");
             Ip = ip;
@@ -32,8 +32,7 @@ namespace Artemis.ValueObjects
 
         public static bool operator ==(Address x, Address y)
         {
-            return x.Port == y.Port &&
-                   string.Equals(x.Ip, y.Ip, StringComparison.InvariantCultureIgnoreCase);
+            return x.Port == y.Port && string.Equals(x.Ip, y.Ip, StringComparison.InvariantCultureIgnoreCase);
         }
 
         public static bool operator !=(Address x, Address y) => !(x == y);

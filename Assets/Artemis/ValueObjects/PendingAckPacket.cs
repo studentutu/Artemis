@@ -1,11 +1,11 @@
 ﻿namespace Artemis.ValueObjects
 {
-    public class PendingAckMessage
+    public class PendingAckPacket
     {
         public readonly Packet Packet;
         public readonly Address Recepient;
 
-        public PendingAckMessage(Packet packet, Address recepient)
+        public PendingAckPacket(Packet packet, Address recepient)
         {
             Packet = packet;
             Recepient = recepient;

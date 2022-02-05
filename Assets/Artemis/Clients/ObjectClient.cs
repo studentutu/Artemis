@@ -1,6 +1,5 @@
 using Artemis.Serialization;
 using Artemis.ValueObjects;
-using rUDP;
 using UnityEngine;
 
 namespace Artemis.Clients
@@ -9,11 +8,11 @@ namespace Artemis.Clients
     {
         private static readonly ISerializer _serializer = new BinarySerializer();
 
-        public ObjectClient(int port = 0) : base(port)
+        protected ObjectClient(int port = 0) : base(port)
         {
         }
 
-        public void SendObject<T>(T obj, Address recipient)
+        protected void SendObject<T>(T obj, Address recipient)
         {
             var bytes = _serializer.Serialize(obj);
             SendBytes(bytes, recipient);

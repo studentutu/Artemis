@@ -13,7 +13,7 @@ namespace Artemis.Clients
 
         public int Port => ((IPEndPoint) _client.Client.LocalEndPoint).Port;
 
-        public ByteClient(int port = 0)
+        protected ByteClient(int port = 0)
         {
             _client = new UdpClient(port);
             _client.Client.DontReportUnreachableEndPoint();
@@ -29,7 +29,7 @@ namespace Artemis.Clients
             _client.Dispose();
         }
 
-        public void SendBytes(byte[] bytes, Address recipient)
+        protected void SendBytes(byte[] bytes, Address recipient)
         {
             _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
         }

@@ -138,7 +138,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &937119098
 MonoBehaviour:
@@ -152,9 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8df7860309cf7964db4eac645189ae38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BindTo: 4321
-  SendTo: 1234
-  VehicleBrand: Honda
+  _other: {fileID: 1971958837}
 --- !u!4 &937119099
 Transform:
   m_ObjectHideFlags: 0
@@ -185,7 +183,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 2147483647
   m_IsActive: 1
 --- !u!114 &1971958837
 MonoBehaviour:
@@ -199,9 +197,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8df7860309cf7964db4eac645189ae38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BindTo: 1234
-  SendTo: 4321
-  VehicleBrand: Toyota
+  _other: {fileID: 937119098}
 --- !u!4 &1971958838
 Transform:
   m_ObjectHideFlags: 0
