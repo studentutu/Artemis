@@ -17,9 +17,18 @@ namespace Artemis.Clients
         {
         }
 
-        public void RegisterMessageHandler<T>(Action<T, Address> handler)
+        public void RegisterMessageHandler<T>(Action<Message<T>> handler)
         {
-            _messageHandlers.Add(typeof(T), (obj, sender) => handler.Invoke((T) obj, sender));
+            _messageHandlers.Add(typeof(T), (payload, address) =>
+            {
+                var msg = new Message<T>
+                {
+                    Sender = address,
+                    Payload = (T) payload
+                };
+
+                handler.Invoke(msg);
+            });
         }
 
         public void RegisterRequestHandler<T>(Action<Request, T, Address> handler)

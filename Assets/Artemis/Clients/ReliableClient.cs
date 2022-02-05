@@ -10,7 +10,7 @@ namespace Artemis.Clients
     public class ReliableClient : ObjectClient
     {
         private readonly Thread _resendReliablePacketsThread;
-        private readonly List<PendingAckPacket> _pendingAckPackets = new();
+        private readonly List<PendingAckMessage> _pendingAckPackets = new();
         private readonly PacketSequenceStorage _outgoingSequenceStorage = new();
         private readonly PacketSequenceStorage _incomingSequenceStorage = new();
 
@@ -33,7 +33,7 @@ namespace Artemis.Clients
 
         public void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
         {
-            var message = new Packet(
+            var message = new MessageContainer(
                 _outgoingSequenceStorage.Get(recepient, deliveryMethod, 0) + 1,
                 obj, deliveryMethod);
 
@@ -43,7 +43,7 @@ namespace Artemis.Clients
             {
                 lock (_pendingAckPackets)
                 {
-                    _pendingAckPackets.Add(new PendingAckPacket(message, recepient));
+                    _pendingAckPackets.Add(new PendingAckMessage(message, recepient));
                 }
             }
 
@@ -60,7 +60,7 @@ namespace Artemis.Clients
                 {
                     foreach (var pam in _pendingAckPackets)
                     {
-                        SendObject(pam.Packet, pam.Recepient);
+                        SendObject(pam.MessageContainer, pam.Recepient);
                     }
                 }
             }
@@ -71,31 +71,31 @@ namespace Artemis.Clients
             Debug.Log($"Handling payload of type {payload.GetType().FullName} from {sender}");
         }
 
-        private void HandlePacket(Packet packet, Address sender)
+        private void HandlePacket(MessageContainer messageContainer, Address sender)
         {
-            var expectedSequence = _incomingSequenceStorage.Get(sender, packet.DeliveryMethod, 0) + 1;
+            var expectedSequence = _incomingSequenceStorage.Get(sender, messageContainer.DeliveryMethod, 0) + 1;
 
-            if (packet.Sequence != expectedSequence)
+            if (messageContainer.Sequence != expectedSequence)
             {
-                Debug.LogWarning($"Discarding reliable packet #{packet.Sequence} with {packet.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
+                Debug.LogWarning($"Discarding reliable packet #{messageContainer.Sequence} with {messageContainer.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
                 return; // Discard duplicate or out or order
             }
 
-            if (packet.DeliveryMethod == DeliveryMethod.Reliable)
+            if (messageContainer.DeliveryMethod == DeliveryMethod.Reliable)
             {
-                SendObject(new Acknowledgement {Sequence = packet.Sequence}, sender);
+                SendObject(new Acknowledgement {Sequence = messageContainer.Sequence}, sender);
             }
 
-            Debug.Log($"Received packet #{packet.Sequence}");
-            _incomingSequenceStorage.Set(sender, packet.DeliveryMethod, packet.Sequence);
-            HandlePayload(packet.Payload, sender);
+            Debug.Log($"Received packet #{messageContainer.Sequence}");
+            _incomingSequenceStorage.Set(sender, messageContainer.DeliveryMethod, messageContainer.Sequence);
+            HandlePayload(messageContainer.Payload, sender);
         }
 
         private void HandleAcknowledgement(Acknowledgement ack, Address sender)
         {
             lock (_pendingAckPackets)
             {
-                _pendingAckPackets.Remove(pam => pam.Packet.Sequence == ack.Sequence && pam.Recepient == sender);
+                _pendingAckPackets.Remove(pam => pam.MessageContainer.Sequence == ack.Sequence && pam.Recepient == sender);
             }
         }
 
@@ -105,7 +105,7 @@ namespace Artemis.Clients
 
             switch (obj)
             {
-                case Packet message:
+                case MessageContainer message:
                     HandlePacket(message, sender);
                     break;
                 case Acknowledgement acknowledgement:

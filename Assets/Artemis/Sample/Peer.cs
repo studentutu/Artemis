@@ -21,9 +21,9 @@ namespace Artemis.Sample
             _client.Start();
         }
 
-        private void HandleVehicleMessage(Vehicle vehicle, Address sender)
+        private void HandleVehicleMessage(Message<Vehicle> message)
         {
-            Debug.Log($"Received a {vehicle.Brand}");
+            Debug.Log($"Received a {message.Payload.Brand} from {message.Sender}");
         }
 
         private void HandleDateTimeRequest(Request request, DateTime dateTime, Address sender)
