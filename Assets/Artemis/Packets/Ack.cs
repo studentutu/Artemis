@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace Artemis.ValueObjects
+namespace Artemis.Packets
 {
     [Serializable]
-    public class Acknowledgement
+    public class Ack
     {
         public int Sequence;
     }

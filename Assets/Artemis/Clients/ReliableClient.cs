@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Artemis.Exceptions;
 using Artemis.Extensions;
+using Artemis.Packets;
 using Artemis.ValueObjects;
 using UnityEngine;
 
@@ -33,7 +34,7 @@ namespace Artemis.Clients
 
         public void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
         {
-            var message = new MessageContainer(
+            var message = new Message(
                 _outgoingSequenceStorage.Get(recepient, deliveryMethod, 0) + 1,
                 obj, deliveryMethod);
 
@@ -60,42 +61,42 @@ namespace Artemis.Clients
                 {
                     foreach (var pam in _pendingAckPackets)
                     {
-                        SendObject(pam.MessageContainer, pam.Recepient);
+                        SendObject(pam.Message, pam.Recepient);
                     }
                 }
             }
         }
 
-        protected virtual void HandleMessage(MessageContainer messageContainer, Address sender)
+        protected virtual void HandleMessage(Message message, Address sender)
         {
-            Debug.Log($"Received message containing {messageContainer.Payload.GetType().FullName} from {sender}");
+            Debug.Log($"Received message containing {message.Payload.GetType().FullName} from {sender}");
         }
 
-        private void HandlePacket(MessageContainer messageContainer, Address sender)
+        private void HandlePacket(Message message, Address sender)
         {
-            var expectedSequence = _incomingSequenceStorage.Get(sender, messageContainer.DeliveryMethod, 0) + 1;
+            var expectedSequence = _incomingSequenceStorage.Get(sender, message.DeliveryMethod, 0) + 1;
 
-            if (messageContainer.Sequence != expectedSequence)
+            if (message.Sequence != expectedSequence)
             {
-                Debug.LogWarning($"Discarding reliable packet #{messageContainer.Sequence} with {messageContainer.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
+                Debug.LogWarning($"Discarding reliable packet #{message.Sequence} with {message.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
                 return; // Discard duplicate or out or order
             }
 
-            if (messageContainer.DeliveryMethod == DeliveryMethod.Reliable)
+            if (message.DeliveryMethod == DeliveryMethod.Reliable)
             {
-                SendObject(new Acknowledgement {Sequence = messageContainer.Sequence}, sender);
+                SendObject(new Ack {Sequence = message.Sequence}, sender);
             }
 
-            Debug.Log($"Received packet #{messageContainer.Sequence}");
-            _incomingSequenceStorage.Set(sender, messageContainer.DeliveryMethod, messageContainer.Sequence);
-            HandleMessage(messageContainer, sender);
+            Debug.Log($"Received packet #{message.Sequence}");
+            _incomingSequenceStorage.Set(sender, message.DeliveryMethod, message.Sequence);
+            HandleMessage(message, sender);
         }
 
-        private void HandleAcknowledgement(Acknowledgement ack, Address sender)
+        private void HandleAcknowledgement(Ack ack, Address sender)
         {
             lock (_pendingAckPackets)
             {
-                _pendingAckPackets.Remove(pam => pam.MessageContainer.Sequence == ack.Sequence && pam.Recepient == sender);
+                _pendingAckPackets.Remove(pam => pam.Message.Sequence == ack.Sequence && pam.Recepient == sender);
             }
         }
 
@@ -105,10 +106,10 @@ namespace Artemis.Clients
 
             switch (obj)
             {
-                case MessageContainer message:
+                case Message message:
                     HandlePacket(message, sender);
                     break;
-                case Acknowledgement acknowledgement:
+                case Ack acknowledgement:
                     HandleAcknowledgement(acknowledgement, sender);
                     break;
                 default: throw new ObjectTypeUnhandledException(obj);

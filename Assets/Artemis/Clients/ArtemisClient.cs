@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Artemis.Packets;
+using Artemis.UserInterface;
 using Artemis.Utilities;
 using Artemis.ValueObjects;
 using UnityEngine;
@@ -9,9 +11,9 @@ namespace Artemis.Clients
 {
     public class ArtemisClient : ReliableClient
     {
-        private readonly Dictionary<string, ResponseContainer> _responses = new();
-        private readonly Dictionary<Type, Action<MessageContainer, Address>> _messageHandlers = new();
-        private readonly Dictionary<Type, Action<RequestContainer, Address>> _requestHandlers = new();
+        private readonly Dictionary<string, Response> _responses = new();
+        private readonly Dictionary<Type, Action<Message, Address>> _messageHandlers = new();
+        private readonly Dictionary<Type, Action<Request, Address>> _requestHandlers = new();
 
         public ArtemisClient(IEnumerable<Handler> handlers, int port = 0) : base(port)
         {
@@ -23,71 +25,69 @@ namespace Artemis.Clients
 
         public void RegisterMessageHandler<T>(Action<Message<T>> handler)
         {
-            _messageHandlers.Add(typeof(T), (messageContainer, address) =>
+            _messageHandlers.Add(typeof(T), (message, sender) =>
             {
-                var msg = new Message<T>((T) messageContainer.Payload, address);
-                handler.Invoke(msg);
+                handler.Invoke(new Message<T>((T) message.Payload, sender));
             });
         }
 
         public void RegisterRequestHandler<T>(Action<Request<T>> handler)
         {
-            _requestHandlers.Add(typeof(T), (requestDto, addr) =>
+            _requestHandlers.Add(typeof(T), (request, sender) =>
             {
-                var req = new Request<T>(requestDto.Id, (T) requestDto.Payload, addr, this);
-                handler.Invoke(req);
+                handler.Invoke(new Request<T>(request.Id, (T) request.Payload, sender, this));
             });
         }
 
-        protected override void HandleMessage(MessageContainer messageContainer, Address sender)
+        protected override void HandleMessage(Message message, Address sender)
         {
-            switch (messageContainer.Payload)
+            switch (message.Payload)
             {
-                case RequestContainer request:
+                case Request request:
                     HandleRequest(request, sender);
                     break;
-                case ResponseContainer response:
+                case Response response:
                     HandleResponse(response, sender);
                     break;
                 default:
-                    HandleUserMessage(messageContainer, sender);
+                    HandleUserMessage(message, sender);
                     break;
             }
         }
         
-        private void HandleUserMessage(MessageContainer messageContainer, Address sender)
+        private void HandleUserMessage(Message message, Address sender)
         {
-            if (_messageHandlers.TryGetValue(messageContainer.Payload.GetType(), out var handler))
+            if (_messageHandlers.TryGetValue(message.Payload.GetType(), out var handler))
             {
-                handler.Invoke(messageContainer, sender);
+                handler.Invoke(message, sender);
             }
             else
             {
-                Debug.LogError($"Message handler not found for type '{messageContainer.Payload.GetType().FullName}'.");
+                Debug.LogError($"Message handler not found for type '{message.Payload.GetType().FullName}'.");
             }
         }
 
-        protected virtual void HandleRequest(RequestContainer requestContainer, Address sender)
+        protected virtual void HandleRequest(Request request, Address sender)
         {
-            if (_requestHandlers.TryGetValue(requestContainer.Payload.GetType(), out var handler))
+            if (_requestHandlers.TryGetValue(request.Payload.GetType(), out var handler))
             {
-                handler.Invoke(requestContainer, sender);
+                handler.Invoke(request, sender);
             }
             else
             {
-                Debug.LogError($"Request handler not found for type '{requestContainer.Payload.GetType().FullName}'.");
+                Debug.LogError($"Request handler not found for type '{request.Payload.GetType().FullName}'.");
             }
         }
 
-        protected virtual void HandleResponse(ResponseContainer responseContainer, Address sender)
+        protected virtual void HandleResponse(Response response, Address sender)
         {
-            Debug.Log($"Received a response of type {responseContainer.Payload.GetType().FullName} from {sender}");
-            _responses.Add(responseContainer.Id, responseContainer);
+            Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
+            _responses.Add(response.Id, response);
         }
 
         public async Task<object> Request<T>(T obj, Address recepient)
         {
-            var request = new RequestContainer(obj);
+            var request = new Request(obj);
             SendMessage(request, recepient, DeliveryMethod.Reliable);
 
             var timeoutTask = Task.Delay(3000);

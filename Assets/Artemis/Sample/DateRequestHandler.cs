@@ -1,5 +1,6 @@
 ﻿using System;
 using Artemis.Clients;
+using Artemis.UserInterface;
 using Artemis.ValueObjects;
 
 namespace Artemis.Sample

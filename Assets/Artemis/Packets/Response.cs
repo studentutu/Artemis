@@ -1,16 +1,16 @@
 ﻿using System;
 
-namespace Artemis.ValueObjects
+namespace Artemis.Packets
 {
     [Serializable]
-    public class RequestContainer
+    public class Response
     {
         public readonly string Id;
         public readonly object Payload;
 
-        public RequestContainer(object payload)
+        public Response(string id, object payload)
         {
-            Id = Guid.NewGuid().ToString("N");
+            Id = id;
             Payload = payload;
         }
     }

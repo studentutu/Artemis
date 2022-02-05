@@ -1,4 +1,6 @@
-﻿namespace Artemis.ValueObjects
+﻿using Artemis.ValueObjects;
+
+namespace Artemis.UserInterface
 {
     public readonly struct Message<T>
     {
