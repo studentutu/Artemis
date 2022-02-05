@@ -16,6 +16,8 @@ namespace Artemis.Sample
         private void Awake()
         {
             _client = new ArtemisClient();
+            _client.RegisterMessageHandler<Vehicle>((vehicle, _) => Debug.Log($"Received a {vehicle.Brand}"));
+            _client.RegisterRequestHandler<DateTime>((req, _, sender) => _client.SendMessage(new Response(req, DateTime.UtcNow), sender, DeliveryMethod.Reliable));
             _client.Start();
         }
 

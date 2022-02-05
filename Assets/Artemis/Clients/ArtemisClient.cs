@@ -10,9 +10,21 @@ namespace Artemis.Clients
     public class ArtemisClient : ReliableClient
     {
         private readonly Dictionary<string, Response> _responses = new();
+        private readonly Dictionary<Type, Action<object, Address>> _messageHandlers = new();
+        private readonly Dictionary<Type, Action<Request, object, Address>> _requestHandlers = new();
 
         public ArtemisClient(int port = 0) : base(port)
         {
+        }
+
+        public void RegisterMessageHandler<T>(Action<T, Address> handler)
+        {
+            _messageHandlers.Add(typeof(T), (obj, sender) => handler.Invoke((T) obj, sender));
+        }
+
+        public void RegisterRequestHandler<T>(Action<Request, T, Address> handler)
+        {
+            _requestHandlers.Add(typeof(T), (req, obj, addr) => handler.Invoke(req, (T) obj, addr));
         }
 
         protected override void HandlePayload(object payload, Address sender)
@@ -26,16 +38,33 @@ namespace Artemis.Clients
                     HandleResponse(response, sender);
                     break;
                 default:
-                    base.HandlePayload(payload, sender);
+                    HandleUserMessage(payload, sender);
                     break;
+            }
+        }
+        
+        private void HandleUserMessage(object payload, Address sender)
+        {
+            if (_messageHandlers.TryGetValue(payload.GetType(), out var handler))
+            {
+                handler.Invoke(payload, sender);
+            }
+            else
+            {
+                Debug.LogError($"Message handler not found for type '{payload.GetType().FullName}'.");
             }
         }
 
         protected virtual void HandleRequest(Request request, Address sender)
         {
-            Debug.Log($"Received a request of type {request.Payload.GetType().FullName} from {sender}");
-            var response = new Response(request, DateTime.UtcNow);
-            SendMessage(response, sender, DeliveryMethod.Reliable);
+            if (_requestHandlers.TryGetValue(request.Payload.GetType(), out var handler))
+            {
+                handler.Invoke(request, request.Payload, sender);
+            }
+            else
+            {
+                Debug.LogError($"Request handler not found for type '{request.Payload.GetType().FullName}'.");
+            }
         }
 
         protected virtual void HandleResponse(Response response, Address sender)
