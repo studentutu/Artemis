@@ -1,7 +1,6 @@
 {
   "dependencies": {
-    "com.madsbangh.easybuttons": "https://github.com/madsbangh/EasyButtons.git#upm",
     "com.unity.ide.rider": "3.0.7",
-    "com.unity.test-framework": "1.1.30"
+    "com.unity.modules.imgui": "1.0.0"
   }
 }

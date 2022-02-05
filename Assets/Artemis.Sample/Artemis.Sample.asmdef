@@ -1,0 +1,17 @@
+{
+    "name": "Artemis.Sample",
+    "rootNamespace": "",
+    "references": [
+        "GUID:dd55358ebb0288445b0d9508c3b28319",
+        "GUID:f24cf67903b27ae498b3069ecc30cc11"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
