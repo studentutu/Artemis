@@ -1,17 +1,19 @@
-﻿using System;
+﻿using Artemis.Clients;
+using Artemis.ValueObjects;
 
-namespace Artemis.ValueObjects
+public class Request<T> : Message<T>
 {
-    [Serializable]
-    public class Request
-    {
-        public readonly string Id;
-        public readonly object Payload;
+    private readonly string _id;
+    private readonly ArtemisClient _means;
 
-        public Request(object payload)
-        {
-            Id = Guid.NewGuid().ToString("N");
-            Payload = payload;
-        }
+    public Request(string id, T payload, Address sender, ArtemisClient means) : base(payload, sender)
+    {
+        _id = id;
+        _means = means;
+    }
+
+    public void Reply<T>(T obj)
+    {
+        _means.SendMessage(new Response(_id, obj), Sender, DeliveryMethod.Reliable);
     }
 }

@@ -26,9 +26,9 @@ namespace Artemis.Sample
             Debug.Log($"Received a {message.Payload.Brand} from {message.Sender}");
         }
 
-        private void HandleDateTimeRequest(Request request, DateTime dateTime, Address sender)
+        private void HandleDateTimeRequest(Request<DateTime> request)
         {
-            _client.SendMessage(new Response(request, DateTime.UtcNow), sender, DeliveryMethod.Reliable);
+            request.Reply(DateTime.UtcNow);
         }
 
         private void Start()

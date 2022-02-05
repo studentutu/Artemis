@@ -3,14 +3,14 @@
 namespace Artemis.ValueObjects
 {
     [Serializable]
-    public class Response
+    public class RequestContainer
     {
         public readonly string Id;
         public readonly object Payload;
 
-        public Response(string id, object payload)
+        public RequestContainer(object payload)
         {
-            Id = id;
+            Id = Guid.NewGuid().ToString("N");
             Payload = payload;
         }
     }

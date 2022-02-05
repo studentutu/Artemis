@@ -11,7 +11,7 @@ namespace Artemis.Clients
     {
         private readonly Dictionary<string, Response> _responses = new();
         private readonly Dictionary<Type, Action<object, Address>> _messageHandlers = new();
-        private readonly Dictionary<Type, Action<Request, object, Address>> _requestHandlers = new();
+        private readonly Dictionary<Type, Action<RequestContainer, Address>> _requestHandlers = new();
 
         public ArtemisClient(int port = 0) : base(port)
         {
@@ -21,26 +21,25 @@ namespace Artemis.Clients
         {
             _messageHandlers.Add(typeof(T), (payload, address) =>
             {
-                var msg = new Message<T>
-                {
-                    Sender = address,
-                    Payload = (T) payload
-                };
-
+                var msg = new Message<T>((T) payload, address);
                 handler.Invoke(msg);
             });
         }
 
-        public void RegisterRequestHandler<T>(Action<Request, T, Address> handler)
+        public void RegisterRequestHandler<T>(Action<Request<T>> handler)
         {
-            _requestHandlers.Add(typeof(T), (req, obj, addr) => handler.Invoke(req, (T) obj, addr));
+            _requestHandlers.Add(typeof(T), (requestDto, addr) =>
+            {
+                var req = new Request<T>(requestDto.Id, (T) requestDto.Payload, addr, this);
+                handler.Invoke(req);
+            });
         }
 
         protected override void HandlePayload(object payload, Address sender)
         {
             switch (payload)
             {
-                case Request request:
+                case RequestContainer request:
                     HandleRequest(request, sender);
                     break;
                 case Response response:
@@ -64,15 +63,15 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleRequest(Request request, Address sender)
+        protected virtual void HandleRequest(RequestContainer requestContainer, Address sender)
         {
-            if (_requestHandlers.TryGetValue(request.Payload.GetType(), out var handler))
+            if (_requestHandlers.TryGetValue(requestContainer.Payload.GetType(), out var handler))
             {
-                handler.Invoke(request, request.Payload, sender);
+                handler.Invoke(requestContainer, sender);
             }
             else
             {
-                Debug.LogError($"Request handler not found for type '{request.Payload.GetType().FullName}'.");
+                Debug.LogError($"Request handler not found for type '{requestContainer.Payload.GetType().FullName}'.");
             }
         }
 
@@ -84,7 +83,7 @@ namespace Artemis.Clients
 
         public async Task<object> Request<T>(T obj, Address recepient)
         {
-            var request = new Request(obj);
+            var request = new RequestContainer(obj);
             SendMessage(request, recepient, DeliveryMethod.Reliable);
 
             var timeoutTask = Task.Delay(3000);
