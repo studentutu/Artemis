@@ -1,8 +1,8 @@
 ﻿namespace Artemis.Serialization
 {
-    public interface ISerializer
+    internal interface ISerializer
     {
-        public byte[] Serialize<T>(T obj);
-        public object Deserialize(byte[] bytes);
+        byte[] Serialize<T>(T obj);
+        object Deserialize(byte[] bytes);
     }
 }

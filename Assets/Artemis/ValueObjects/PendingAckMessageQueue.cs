@@ -5,20 +5,25 @@ using System.Collections.Generic;
 
 namespace Artemis.ValueObjects
 {
-    public class PendingAckMessageQueue
+    internal class PendingAckMessageQueue
     {
         private readonly List<Address> _list = new();
         private readonly Dictionary<Address, List<Message>> _dictionary = new();
 
-        public IEnumerable<(Address, List<Message>)> Get()
+        internal IEnumerable<(Address, List<Message>)> Get()
         {
             return _list.Select(address => (address, _dictionary[address]));
         }
 
-        public void Add(Address recipient, Message message)
+        internal void Add(Address recipient, Message message)
         {
             EnsureAddressInsertion(recipient);
             _dictionary[recipient].Add(message);
+        }
+
+        internal void Remove(Address recipient, int sequence)
+        {
+            _dictionary[recipient].Remove(msg => msg.Sequence == sequence);
         }
 
         private void EnsureAddressInsertion(Address recipient)
@@ -28,11 +33,6 @@ namespace Artemis.ValueObjects
                 _list.Add(recipient);
                 _dictionary.Add(recipient, new List<Message>());
             }
-        }
-
-        public void Remove(Address recipient, int sequence)
-        {
-            _dictionary[recipient].Remove(msg => msg.Sequence == sequence);
         }
     }
 }

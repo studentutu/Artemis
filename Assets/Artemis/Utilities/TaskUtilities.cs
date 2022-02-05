@@ -3,9 +3,9 @@ using System.Threading.Tasks;
 
 namespace Artemis.Utilities
 {
-    public static class TaskUtilities
+    internal static class TaskUtilities
     {
-        public static async Task WaitUntil(Func<bool> condition)
+        internal static async Task WaitUntil(Func<bool> condition)
         {
             while (!condition.Invoke())
             {

@@ -2,9 +2,9 @@
 
 namespace Artemis.Exceptions
 {
-    public class ObjectTypeUnhandledException : Exception
+    internal class ObjectTypeUnhandledException : Exception
     {
-        public ObjectTypeUnhandledException(object obj) : base(GenerateMessage(obj))
+        internal ObjectTypeUnhandledException(object obj) : base(GenerateMessage(obj))
         {
         }
 
