@@ -9,7 +9,7 @@ namespace Artemis.Clients
 {
     public class ArtemisClient : ReliableClient
     {
-        private readonly Dictionary<string, Response> _responses = new();
+        private readonly Dictionary<string, ResponseContainer> _responses = new();
         private readonly Dictionary<Type, Action<object, Address>> _messageHandlers = new();
         private readonly Dictionary<Type, Action<RequestContainer, Address>> _requestHandlers = new();
 
@@ -42,7 +42,7 @@ namespace Artemis.Clients
                 case RequestContainer request:
                     HandleRequest(request, sender);
                     break;
-                case Response response:
+                case ResponseContainer response:
                     HandleResponse(response, sender);
                     break;
                 default:
@@ -75,10 +75,10 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleResponse(Response response, Address sender)
+        protected virtual void HandleResponse(ResponseContainer responseContainer, Address sender)
         {
-            Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
-            _responses.Add(response.Id, response);
+            Debug.Log($"Received a response of type {responseContainer.Payload.GetType().FullName} from {sender}");
+            _responses.Add(responseContainer.Id, responseContainer);
         }
 
         public async Task<object> Request<T>(T obj, Address recepient)

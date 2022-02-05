@@ -14,6 +14,6 @@ public class Request<T> : Message<T>
 
     public void Reply<T>(T obj)
     {
-        _means.SendMessage(new Response(_id, obj), Sender, DeliveryMethod.Reliable);
+        _means.SendMessage(new ResponseContainer(_id, obj), Sender, DeliveryMethod.Reliable);
     }
 }
