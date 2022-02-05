@@ -23,7 +23,7 @@ namespace Artemis.Sample
 
         private void HandleVehicleMessage(Message<Vehicle> message)
         {
-            Debug.Log($"Received a {message.Payload.Brand} from {message.Sender}");
+            Debug.Log($"Received a <b>{message.Payload.Brand}</b> from {message.Sender}");
         }
 
         private void HandleDateTimeRequest(Request<DateTime> request)

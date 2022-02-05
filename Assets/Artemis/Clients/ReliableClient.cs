@@ -66,9 +66,9 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandlePayload(object payload, Address sender)
+        protected virtual void HandleMessage(MessageContainer messageContainer, Address sender)
         {
-            Debug.Log($"Handling payload of type {payload.GetType().FullName} from {sender}");
+            Debug.Log($"Received message containing {messageContainer.Payload.GetType().FullName} from {sender}");
         }
 
         private void HandlePacket(MessageContainer messageContainer, Address sender)
@@ -88,7 +88,7 @@ namespace Artemis.Clients
 
             Debug.Log($"Received packet #{messageContainer.Sequence}");
             _incomingSequenceStorage.Set(sender, messageContainer.DeliveryMethod, messageContainer.Sequence);
-            HandlePayload(messageContainer.Payload, sender);
+            HandleMessage(messageContainer, sender);
         }
 
         private void HandleAcknowledgement(Acknowledgement ack, Address sender)

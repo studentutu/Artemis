@@ -10,7 +10,7 @@ namespace Artemis.Clients
     public class ArtemisClient : ReliableClient
     {
         private readonly Dictionary<string, ResponseContainer> _responses = new();
-        private readonly Dictionary<Type, Action<object, Address>> _messageHandlers = new();
+        private readonly Dictionary<Type, Action<MessageContainer, Address>> _messageHandlers = new();
         private readonly Dictionary<Type, Action<RequestContainer, Address>> _requestHandlers = new();
 
         public ArtemisClient(int port = 0) : base(port)
@@ -19,9 +19,9 @@ namespace Artemis.Clients
 
         public void RegisterMessageHandler<T>(Action<Message<T>> handler)
         {
-            _messageHandlers.Add(typeof(T), (payload, address) =>
+            _messageHandlers.Add(typeof(T), (messageContainer, address) =>
             {
-                var msg = new Message<T>((T) payload, address);
+                var msg = new Message<T>((T) messageContainer.Payload, address);
                 handler.Invoke(msg);
             });
         }
@@ -35,9 +35,9 @@ namespace Artemis.Clients
             });
         }
 
-        protected override void HandlePayload(object payload, Address sender)
+        protected override void HandleMessage(MessageContainer messageContainer, Address sender)
         {
-            switch (payload)
+            switch (messageContainer.Payload)
             {
                 case RequestContainer request:
                     HandleRequest(request, sender);
@@ -46,20 +46,20 @@ namespace Artemis.Clients
                     HandleResponse(response, sender);
                     break;
                 default:
-                    HandleUserMessage(payload, sender);
+                    HandleUserMessage(messageContainer, sender);
                     break;
             }
         }
         
-        private void HandleUserMessage(object payload, Address sender)
+        private void HandleUserMessage(MessageContainer messageContainer, Address sender)
         {
-            if (_messageHandlers.TryGetValue(payload.GetType(), out var handler))
+            if (_messageHandlers.TryGetValue(messageContainer.Payload.GetType(), out var handler))
             {
-                handler.Invoke(payload, sender);
+                handler.Invoke(messageContainer, sender);
             }
             else
             {
-                Debug.LogError($"Message handler not found for type '{payload.GetType().FullName}'.");
+                Debug.LogError($"Message handler not found for type '{messageContainer.Payload.GetType().FullName}'.");
             }
         }
 
