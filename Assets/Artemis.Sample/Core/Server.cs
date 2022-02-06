@@ -30,7 +30,11 @@ public partial class Server : MonoBehaviour
 
     private void Close()
     {
-        _connections.ForEach(connection => _client.SendMessage(new ServerClosingMessage(), connection, DeliveryMethod.Unreliable));
+        if (_state == State.Open)
+        {
+            _connections.ForEach(connection => _client.SendMessage(new ServerClosingMessage(), connection, DeliveryMethod.Unreliable));
+        }
+        
         _client?.Dispose();
         _client = null;
         _state = State.Closed;
