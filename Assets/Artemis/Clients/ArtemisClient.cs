@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Packets;
 using Artemis.UserInterface;
@@ -85,23 +86,13 @@ namespace Artemis.Clients
             _responses.Add(response.Id, response);
         }
 
-        public async Task<object> Request<T>(T obj, Address recepient)
+        public async Task<object> Request<T>(T obj, Address recepient, CancellationToken ct = default)
         {
             var request = new Request(obj);
             SendMessage(request, recepient, DeliveryMethod.Reliable);
-
-            var timeoutTask = Task.Delay(3000);
-            var responseTask = TaskUtilities.WaitUntil(() => _responses.ContainsKey(request.Id));
-            var completed = await Task.WhenAny(timeoutTask, responseTask);
-
-            if (completed == responseTask)
-            {
-                var response = _responses[request.Id];
-                _responses.Remove(request.Id);
-                return response.Payload;
-            }
-
-            throw new TimeoutException();
+            await TasQ.WaitUntil(() => _responses.ContainsKey(request.Id), ct);
+            _responses.Remove(request.Id, out var response);
+            return response.Payload;
         }
     }
 }
