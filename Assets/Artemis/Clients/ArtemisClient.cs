@@ -81,7 +81,7 @@ namespace Artemis.Clients
 
         protected virtual void HandleResponse(Response response, Address sender)
         {
-            Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
+            //Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
             _responses.Add(response.Id, response);
         }
 

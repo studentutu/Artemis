@@ -80,7 +80,7 @@ namespace Artemis.Clients
 
             if (message.Sequence != expectedSequence)
             {
-                Debug.LogWarning($"Discarding reliable packet #{message.Sequence} with {message.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
+                //Debug.LogWarning($"Discarding reliable packet #{message.Sequence} with {message.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
                 return; // Discard duplicate or out or order
             }
 
@@ -89,7 +89,6 @@ namespace Artemis.Clients
                 SendObject(new Ack {Sequence = message.Sequence}, sender);
             }
 
-            Debug.Log($"Received packet #{message.Sequence} {Port}");
             _incomingSequenceStorage.Set(sender, message.DeliveryMethod, message.Sequence);
             HandleMessage(message, sender);
         }
