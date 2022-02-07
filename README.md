@@ -10,12 +10,17 @@
   
 ## APIs
 ```csharp
-ArtemisClient :: async Task<object> Request<T>(T obj, Address recepient)
+void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
 ```
   
 ```csharp
-ArtemisClient :: void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
-```  
+Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default) 
+```
+  
+```csharp
+Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
+```
+
 </div>
 
 <div align=center>
