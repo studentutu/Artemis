@@ -1,63 +1,42 @@
-using System;
 using UnityEngine;
-using Artemis.Sample;
 using Artemis.Clients;
+using Artemis.Sample.Core;
 using Artemis.ValueObjects;
-using UnityEngine.Assertions;
 
-public partial class Client : MonoBehaviour
+public class Client : MonoBehaviour
 {
-    private enum State
+    public ArtemisClient _client;
+    public Address ServerAddress;
+
+    public IClientState Current;
+    public readonly IClientState Disconnected = new ClientDisconnectedState();
+    public readonly IClientState Connecting = new ClientConnectingState();
+    public readonly IClientState Connected = new ClientConnectedState();
+
+    private void Start()
     {
-        Null,
-        Connecting,
-        Connected
+        Current = Disconnected;
     }
 
-    private ArtemisClient _client;
-    private State _state = State.Null;
-    private string _serverHostname = "localhost";
-    private Address _serverAddress;
-
-    private void OnDestroy()
+    private void OnGUI()
     {
-        Disconnect();
-    }
-
-    private async void Connect()
-    {
-        Assert.IsTrue(_state == State.Null);
-
-        try
+        using (new GUILayout.AreaScope(new Rect(8, 8, 200, Screen.height)))
         {
-            _state = State.Connecting;
-            _client = new ArtemisClient(Array.Empty<Handler>());
-            _client.RegisterMessageHandler<ServerClosingMessage>(HandleServerClosingMessage);
-            _client.Start();
-            _serverAddress = Address.FromHostname(_serverHostname, Constants.ServerPort);
-            await _client.RequestAsync(new ConnectionRequest(), _serverAddress, gameObject.GetOnDestroyCancellationToken());
-            _state = State.Connected;
-        }
-        catch (Exception e)
-        {
-            Disconnect();
-            
-            if (e is not OperationCanceledException)
+            using (new GUILayout.VerticalScope("box"))
             {
-                Debug.LogError(e);
+                GUILayout.Label("Client", new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter});
+                Current.OnGUI(this);
             }
         }
     }
 
-    private void Disconnect()
+    private void OnDestroy()
     {
-        if (_state == State.Connected)
-        {
-            _client.SendMessage(new ClientDisconnectionMessage(), _serverAddress, DeliveryMethod.Unreliable);
-        }
-
-        _state = State.Null;
-        _client?.Dispose();
-        _client = null;
+        Current.OnDestroy(this);
+    }
+    
+    public void Switch(IClientState state)
+    {
+        (Current = state).OnStateEntered(this);
     }
 }

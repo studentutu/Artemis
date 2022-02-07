@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace Artemis.Utilities
 {
-    internal static class TasQ
+    public static class TasQ
     {
         public static async Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeout, CancellationToken ct)
         {
@@ -18,6 +18,11 @@ namespace Artemis.Utilities
 
             cts.Cancel();
             return await task;
+        }
+
+        public static void Forget(this Task task)
+        {
+            // Suppresses compiler warning
         }
     }
 }

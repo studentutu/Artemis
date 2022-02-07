@@ -9,25 +9,25 @@ namespace Artemis.Clients
 {
     public class ReliableClient : ObjectClient
     {
-        private readonly Thread _resendReliablePacketsThread;
+        private readonly Thread _retransmissionThread;
         private readonly PendingAckMessageQueue _pendingAckMsgQueue = new();
         private readonly PacketSequenceStorage _outgoingSequenceStorage = new();
         private readonly PacketSequenceStorage _incomingSequenceStorage = new();
 
         protected ReliableClient(int port = 0) : base(port)
         {
-            _resendReliablePacketsThread = new Thread(ResendPendingAckPackets);
+            _retransmissionThread = new Thread(ResendPendingAckPackets);
         }
 
         public override void Start()
         {
             base.Start();
-            _resendReliablePacketsThread.Start();
+            _retransmissionThread.Start();
         }
 
         public override void Dispose()
         {
-            _resendReliablePacketsThread.Abort();
+            _retransmissionThread.Abort();
             base.Dispose();
         }
 
