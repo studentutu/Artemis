@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Packets;
+using Artemis.Settings;
 using Artemis.UserInterface;
 using Artemis.Utilities;
 using Artemis.ValueObjects;
@@ -12,7 +13,7 @@ namespace Artemis.Clients
 {
     public class ArtemisClient : ReliableClient
     {
-        private readonly Dictionary<string, Response> _responses = new();
+        private readonly Dictionary<string, TaskCompletionSource<object>> _responses = new();
         private readonly Dictionary<Type, Action<Message, Address>> _messageHandlers = new();
         private readonly Dictionary<Type, Action<Request, Address>> _requestHandlers = new();
 
@@ -83,16 +84,21 @@ namespace Artemis.Clients
         protected virtual void HandleResponse(Response response, Address sender)
         {
             //Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
-            _responses.Add(response.Id, response);
+            _responses[response.Id].TrySetResult(response);
         }
 
-        public async Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
+        {
+            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
+        }
+        
+        public Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
         {
             var request = new Request(obj);
             SendMessage(request, recepient, DeliveryMethod.Reliable);
-            await TasQ.WaitUntil(() => _responses.ContainsKey(request.Id), ct);
-            _responses.Remove(request.Id, out var response);
-            return response.Payload;
+            var tcs = new TaskCompletionSource<object>();
+            _responses.Add(request.Id, tcs);
+            return tcs.Task.TimeoutAfter(timeout, ct);
         }
     }
 }

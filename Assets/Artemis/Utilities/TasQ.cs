@@ -6,18 +6,18 @@ namespace Artemis.Utilities
 {
     internal static class TasQ
     {
-        internal static async Task WaitUntil(Func<bool> condition, CancellationToken ct = default)
+        public static async Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeout, CancellationToken ct)
         {
-            while (!condition.Invoke())
-            {
-                ct.ThrowIfCancellationRequested();
-                if (ct.IsCancellationRequested)
-                {
-                    throw new TaskCanceledException();
-                }
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            var timeoutTask = Task.Delay(timeout, cts.Token);
 
-                await Task.Yield();
+            if (await Task.WhenAny(task, timeoutTask) == timeoutTask)
+            {
+                throw new TaskCanceledException();
             }
+
+            cts.Cancel();
+            return await task;
         }
     }
 }
