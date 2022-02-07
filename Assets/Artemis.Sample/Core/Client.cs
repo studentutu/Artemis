@@ -36,7 +36,7 @@ public partial class Client : MonoBehaviour
             var timeoutCt = new CancellationTokenSource(timeout).Token;
             var onDestroyCt = gameObject.GetOnDestroyCancellationToken();
 
-            await _client.Request(
+            await _client.RequestAsync(
                 new ConnectionRequest(),
                 _serverAddress,
                 CancellationTokenSource.CreateLinkedTokenSource(timeoutCt, onDestroyCt).Token);

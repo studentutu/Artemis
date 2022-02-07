@@ -86,7 +86,7 @@ namespace Artemis.Clients
             _responses.Add(response.Id, response);
         }
 
-        public async Task<object> Request<T>(T obj, Address recepient, CancellationToken ct = default)
+        public async Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
         {
             var request = new Request(obj);
             SendMessage(request, recepient, DeliveryMethod.Reliable);
