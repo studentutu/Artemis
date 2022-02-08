@@ -32,22 +32,32 @@ namespace Artemis.Clients
             base.Dispose();
         }
 
-        public int SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
+        private Message BuildMessage<T>(T payload, Address recipient, DeliveryMethod deliveryMethod)
         {
-            var message = new Message(
-                _outgoingSequenceStorage.Get(recepient, deliveryMethod, 0) + 1,
-                obj, deliveryMethod);
+            var sequence = _outgoingSequenceStorage.Get(recipient, deliveryMethod, 0) + 1;
+            return new Message(sequence, payload, deliveryMethod);
+        }
 
-            _outgoingSequenceStorage.Set(recepient, deliveryMethod, message.Sequence);
+        private void SendMessage(Message message, Address recipient)
+        {
+            _outgoingSequenceStorage.Set(recipient, message.DeliveryMethod, message.Sequence);
+            SendObject(message, recipient);
+        }
 
-            SendObject(message, recepient);
+        public void SendUnreliableMessage<T>(T obj, Address recipient)
+        {
+            var message = BuildMessage(obj, recipient, DeliveryMethod.Unreliable);
+            SendMessage(message, recipient);
+        }
+
+        public int SendReliableMessage<T>(T obj, Address recipient)
+        {
+            var message = BuildMessage(obj, recipient, DeliveryMethod.Reliable);
+            SendMessage(message, recipient);
             
-            if (deliveryMethod == DeliveryMethod.Reliable)
+            lock (_pendingAckMsgQueue)
             {
-                lock (_pendingAckMsgQueue)
-                {
-                    _pendingAckMsgQueue.Add(recepient, message);
-                }
+                _pendingAckMsgQueue.Add(recipient, message);
             }
 
             return message.Sequence;

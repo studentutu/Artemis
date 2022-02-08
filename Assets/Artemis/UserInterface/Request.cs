@@ -21,7 +21,7 @@ namespace Artemis.UserInterface
 
         public void Reply<TResponse>(TResponse response)
         {
-            _means.SendMessage(new Response(_id, response), Sender, DeliveryMethod.Reliable);
+            _means.SendReliableMessage(new Response(_id, response), Sender);
         }
     }
 }

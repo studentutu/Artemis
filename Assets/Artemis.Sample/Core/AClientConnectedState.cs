@@ -22,11 +22,7 @@ namespace Artemis.Sample.Core
 
         private static void Disconnect(Client client)
         {
-            client._client.SendMessage(
-                new ClientDisconnectionMessage(),
-                client.ServerAddress,
-                DeliveryMethod.Unreliable);
-
+            client._client.SendUnreliableMessage(new ClientDisconnectionMessage(), client.ServerAddress);
             client._client.Dispose();
             client._client = null;
             client.Switch(client.Disconnected);

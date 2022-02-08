@@ -26,7 +26,7 @@ namespace Artemis.Sample.Core
         {
             foreach (var connection in server._connections)
             {
-                server._client.SendMessage(new ServerClosingMessage(), connection, DeliveryMethod.Unreliable);
+                server._client.SendUnreliableMessage(new ServerClosingMessage(), connection);
             }
             
             server._client.Dispose();

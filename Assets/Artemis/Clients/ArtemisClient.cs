@@ -106,7 +106,7 @@ namespace Artemis.Clients
             var request = new Request(obj);
             var tcs = new TaskCompletionSource<object>();
             _responses.Add(request.Id, tcs);
-            var seq = SendMessage(request, recepient, DeliveryMethod.Reliable); // TODO Maybe create a specific send message signature to reliable messages, and cancel it with CancellationToken
+            var seq = SendReliableMessage(request, recepient); // TODO Maybe create a specific send message signature to reliable messages, and cancel it with CancellationToken
             globalCts.Token.Register(()=>CancelRequest(tcs, request, recepient, seq));
 
             return await tcs.Task;
