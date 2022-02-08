@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using Artemis.Exceptions;
 using Artemis.Packets;
+using Artemis.Settings;
 using Artemis.ValueObjects;
 using UnityEngine;
 
@@ -54,13 +55,13 @@ namespace Artemis.Clients
         {
             while (true)
             {
-                Thread.Sleep(32);
+                Thread.Sleep(Configuration.RetransmissionInterval);
 
                 lock (_pendingAckMsgQueue)
                 {
                     foreach (var (address, messages) in _pendingAckMsgQueue.Get())
                     {
-                        foreach (var message in messages.Take(64))
+                        foreach (var message in messages.Take(Configuration.RetransmissionCapacity))
                         {
                             SendObject(message, address);
                         }
