@@ -7,25 +7,17 @@ using UnityEngine;
 
 namespace Artemis.Sample.Core
 {
-    public class ClientDisconnectedState : IClientState
+    public class AClientDisconnectedState : AClientState
     {
         private string _host = "localhost";
 
-        void IClientState.OnStateEntered(Client client)
-        {
-        }
-
-        void IClientState.OnGUI(Client client)
+        public override void OnGUI(Client client)
         {
             using (new GUILayout.HorizontalScope())
             {
                 GUILayoutUtilities.Button("Connect", () => ConnectAsync(client, _host).Forget(), GUILayout.Width(64));
                 _host = GUILayout.TextField(_host);
             }
-        }
-
-        void IClientState.OnDestroy(Client client)
-        {
         }
 
         private static async Task ConnectAsync(Client client, string host)

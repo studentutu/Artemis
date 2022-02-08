@@ -9,11 +9,11 @@ public class Server : MonoBehaviour
     public ArtemisClient _client;
     public readonly List<Address> _connections = new List<Address>();
 
-    public IServerState Current;
-    public readonly IServerState Stopped = new ServerStoppedState();
-    public readonly IServerState Running = new ServerRunningState();
+    public AServerState Current;
+    public readonly AServerState Stopped = new AServerStoppedState();
+    public readonly AServerState Running = new AServerRunningState();
 
-    public void Switch(IServerState state)
+    public void Switch(AServerState state)
     {
         (Current = state).OnStateEntered(this);
     }

@@ -8,10 +8,10 @@ public class Client : MonoBehaviour
     public ArtemisClient _client;
     public Address ServerAddress;
 
-    public IClientState Current;
-    public readonly IClientState Disconnected = new ClientDisconnectedState();
-    public readonly IClientState Connecting = new ClientConnectingState();
-    public readonly IClientState Connected = new ClientConnectedState();
+    public AClientState Current;
+    public readonly AClientState Disconnected = new AClientDisconnectedState();
+    public readonly AClientState Connecting = new AClientConnectingState();
+    public readonly AClientState Connected = new AClientConnectedState();
 
     private void Start()
     {
@@ -35,7 +35,7 @@ public class Client : MonoBehaviour
         Current.OnDestroy(this);
     }
     
-    public void Switch(IClientState state)
+    public void Switch(AClientState state)
     {
         (Current = state).OnStateEntered(this);
     }

@@ -4,19 +4,11 @@ using Artemis.ValueObjects;
 
 namespace Artemis.Sample.Core
 {
-    public class ServerStoppedState : IServerState
+    public class AServerStoppedState : AServerState
     {
-        void IServerState.OnStateEntered(Server server)
-        {
-        }
-
-        void IServerState.OnGUI(Server server)
+        public override void OnGUI(Server server)
         {
             GUILayoutUtilities.Button("Start", () => Start(server));
-        }
-
-        void IServerState.OnDestroy(Server server)
-        {
         }
 
         private static void Start(Server server)
