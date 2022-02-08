@@ -102,21 +102,20 @@ namespace Artemis.Clients
         {
             using var timeoutCts = new CancellationTokenSource(timeout);
             using var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
-            
+
             var request = new Request(obj);
             var tcs = new TaskCompletionSource<object>();
             _responses.Add(request.Id, tcs);
-            var seq = SendReliableMessage(request, recepient); // TODO Maybe create a specific send message signature to reliable messages, and cancel it with CancellationToken
-            globalCts.Token.Register(()=>CancelRequest(tcs, request, recepient, seq));
+            SendReliableMessage(request, recepient, globalCts.Token);
+            globalCts.Token.Register(() => CancelRequest(tcs, request));
 
             return await tcs.Task;
         }
 
-        private void CancelRequest(TaskCompletionSource<object> tcs, Request request, Address recepient, int reliableMsgSeq)
+        private void CancelRequest(TaskCompletionSource<object> tcs, Request request)
         {
             tcs.TrySetCanceled();
             _responses.Remove(request.Id);
-            CancelMessageRetransmission(recepient, reliableMsgSeq);
         }
     }
 }

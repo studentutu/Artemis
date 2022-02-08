@@ -50,17 +50,24 @@ namespace Artemis.Clients
             SendMessage(message, recipient);
         }
 
-        public int SendReliableMessage<T>(T obj, Address recipient)
+        public void SendReliableMessage<T>(T obj, Address recipient, CancellationToken ct = default)
         {
             var message = BuildMessage(obj, recipient, DeliveryMethod.Reliable);
             SendMessage(message, recipient);
-            
+
             lock (_pendingAckMsgQueue)
             {
                 _pendingAckMsgQueue.Add(recipient, message);
             }
 
-            return message.Sequence;
+            ct.Register(() =>
+            {
+                lock (_pendingAckMsgQueue)
+                {
+                    Debug.Log("Removing reliable message from retransmission queue");
+                    _pendingAckMsgQueue.Remove(recipient, message.Sequence);
+                }
+            });
         }
 
         private void ResendPendingAckPackets()
@@ -127,14 +134,6 @@ namespace Artemis.Clients
                     HandleAcknowledgement(acknowledgement, sender);
                     break;
                 default: throw new ObjectTypeUnhandledException(obj);
-            }
-        }
-
-        protected void CancelMessageRetransmission(Address recipient, int sequence)
-        {
-            lock (_pendingAckMsgQueue)
-            {
-                _pendingAckMsgQueue.Remove(recipient, sequence);
             }
         }
     }
