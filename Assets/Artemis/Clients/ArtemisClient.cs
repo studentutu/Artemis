@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Artemis.Packets;
 using Artemis.Settings;
 using Artemis.UserInterface;
-using Artemis.Utilities;
 using Artemis.ValueObjects;
 using UnityEngine;
 
@@ -23,23 +22,6 @@ namespace Artemis.Clients
             {
                 handler.Bind(this);
             }
-        }
-        
-        public void RegisterHandler<T>(Action<T> handler)
-        {
-            throw new NotImplementedException();
-            
-            if (typeof(T).GetGenericTypeDefinition() == typeof(Message<>))
-            {
-                
-            }
-
-            if (typeof(T).GetGenericTypeDefinition() == typeof(Request<>))
-            {
-                
-            }
-
-            throw new Exception($"{typeof(T).FullName} cannot be handled.");
         }
 
         public void RegisterMessageHandler<T>(Action<Message<T>> handler)
@@ -100,22 +82,41 @@ namespace Artemis.Clients
 
         protected virtual void HandleResponse(Response response, Address sender)
         {
-            //Debug.Log($"Received a response of type {response.Payload.GetType().FullName} from {sender}");
-            _responses[response.Id].TrySetResult(response);
+            if (_responses.Remove(response.Id, out var tcs))
+            {
+                tcs.TrySetResult(response);
+            }
+            else
+            {
+                // It can happen because of latency ¯\_(ツ)_/¯
+                Debug.LogWarning("Received a response for a request the client has cancelled");
+            }
         }
 
-        public Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
+        public async Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
         {
-            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
+            return await RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
         }
-        
-        public Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
+
+        public async Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
         {
+            using var timeoutCts = new CancellationTokenSource(timeout);
+            using var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
+            
             var request = new Request(obj);
-            SendMessage(request, recepient, DeliveryMethod.Reliable);
             var tcs = new TaskCompletionSource<object>();
             _responses.Add(request.Id, tcs);
-            return tcs.Task.TimeoutAfter(timeout, ct);
+            var seq = SendMessage(request, recepient, DeliveryMethod.Reliable); // TODO Maybe create a specific send message signature to reliable messages, and cancel it with CancellationToken
+            globalCts.Token.Register(()=>CancelRequest(tcs, request, recepient, seq));
+
+            return await tcs.Task;
+        }
+
+        private void CancelRequest(TaskCompletionSource<object> tcs, Request request, Address recepient, int reliableMsgSeq)
+        {
+            tcs.TrySetCanceled();
+            _responses.Remove(request.Id);
+            CancelMessageRetransmission(recepient, reliableMsgSeq);
         }
     }
 }

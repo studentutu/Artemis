@@ -32,7 +32,7 @@ namespace Artemis.Clients
             base.Dispose();
         }
 
-        public void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
+        public int SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
         {
             var message = new Message(
                 _outgoingSequenceStorage.Get(recepient, deliveryMethod, 0) + 1,
@@ -40,6 +40,8 @@ namespace Artemis.Clients
 
             _outgoingSequenceStorage.Set(recepient, deliveryMethod, message.Sequence);
 
+            SendObject(message, recepient);
+            
             if (deliveryMethod == DeliveryMethod.Reliable)
             {
                 lock (_pendingAckMsgQueue)
@@ -48,7 +50,7 @@ namespace Artemis.Clients
                 }
             }
 
-            SendObject(message, recepient);
+            return message.Sequence;
         }
 
         private void ResendPendingAckPackets()
@@ -115,6 +117,14 @@ namespace Artemis.Clients
                     HandleAcknowledgement(acknowledgement, sender);
                     break;
                 default: throw new ObjectTypeUnhandledException(obj);
+            }
+        }
+
+        protected void CancelMessageRetransmission(Address recipient, int sequence)
+        {
+            lock (_pendingAckMsgQueue)
+            {
+                _pendingAckMsgQueue.Remove(recipient, sequence);
             }
         }
     }
