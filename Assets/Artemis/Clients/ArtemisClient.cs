@@ -24,6 +24,23 @@ namespace Artemis.Clients
                 handler.Bind(this);
             }
         }
+        
+        public void RegisterHandler<T>(Action<T> handler)
+        {
+            throw new NotImplementedException();
+            
+            if (typeof(T).GetGenericTypeDefinition() == typeof(Message<>))
+            {
+                
+            }
+
+            if (typeof(T).GetGenericTypeDefinition() == typeof(Request<>))
+            {
+                
+            }
+
+            throw new Exception($"{typeof(T).FullName} cannot be handled.");
+        }
 
         public void RegisterMessageHandler<T>(Action<Message<T>> handler)
         {

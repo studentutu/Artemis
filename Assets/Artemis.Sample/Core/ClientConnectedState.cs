@@ -1,5 +1,4 @@
-﻿using Artemis.UserInterface;
-using Artemis.ValueObjects;
+﻿using Artemis.ValueObjects;
 using UnityEngine;
 
 namespace Artemis.Sample.Core
@@ -8,8 +7,7 @@ namespace Artemis.Sample.Core
     {
         void IClientState.OnStateEntered(Client client)
         {
-            client._client.RegisterMessageHandler<ServerClosingMessage>(
-                msg => HandleServerClosingMessage(client, msg));
+            client._client.RegisterMessageHandler<ServerClosingMessage>(_ => HandleServerClosingMessage(client));
         }
 
         void IClientState.OnGUI(Client client)
@@ -34,7 +32,7 @@ namespace Artemis.Sample.Core
             client.Switch(client.Disconnected);
         }
 
-        private void HandleServerClosingMessage(Client client, Message<ServerClosingMessage> message)
+        private void HandleServerClosingMessage(Client client)
         {
             Debug.Log("<b>[C]</b> Server was closed");
             Disconnect(client);

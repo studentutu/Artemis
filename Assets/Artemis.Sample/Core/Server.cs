@@ -1,42 +1,42 @@
-using System;
 using UnityEngine;
-using Artemis.Sample;
 using Artemis.Clients;
 using Artemis.ValueObjects;
-using UnityEngine.Assertions;
 using System.Collections.Generic;
+using Artemis.Sample.Core;
 
-public partial class Server : MonoBehaviour
+public class Server : MonoBehaviour
 {
-    private enum State { Closed, Open }
-    private State _state;
-    private ArtemisClient _client;
-    private readonly List<Address> _connections = new List<Address>();
+    public ArtemisClient _client;
+    public readonly List<Address> _connections = new List<Address>();
+
+    public IServerState Current;
+    public readonly IServerState Stopped = new ServerStoppedState();
+    public readonly IServerState Running = new ServerRunningState();
+
+    public void Switch(IServerState state)
+    {
+        (Current = state).OnStateEntered(this);
+    }
+
+    private void Start()
+    {
+        Current = Stopped;
+    }
+
+    private void OnGUI()
+    {
+        using (new GUILayout.AreaScope(new Rect(Screen.width - 200 - 8, 8, 200, Screen.height)))
+        {
+            using (new GUILayout.VerticalScope("box"))
+            {
+                GUILayout.Label("Server", new GUIStyle("Label") {alignment = TextAnchor.MiddleCenter});
+                Current.OnGUI(this);
+            }
+        }
+    }
 
     private void OnDestroy()
     {
-        Close();
-    }
-
-    private void Open()
-    {
-        Assert.IsTrue(_state == State.Closed);
-        _client = new ArtemisClient(Array.Empty<Handler>(), Constants.ServerPort);
-        _client.RegisterRequestHandler<ConnectionRequest>(HandleConnectionRequest);
-        _client.RegisterMessageHandler<ClientDisconnectionMessage>(HandleClientDisconnectionMessage);
-        _client.Start();
-        _state = State.Open;
-    }
-
-    private void Close()
-    {
-        if (_state == State.Open)
-        {
-            _connections.ForEach(connection => _client.SendMessage(new ServerClosingMessage(), connection, DeliveryMethod.Unreliable));
-        }
-        
-        _client?.Dispose();
-        _client = null;
-        _state = State.Closed;
+        Current.OnDestroy(this);
     }
 }
