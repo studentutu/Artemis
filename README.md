@@ -10,15 +10,19 @@
   
 ## APIs
 ```csharp
-void SendMessage<T>(T obj, Address recepient, DeliveryMethod deliveryMethod)
+void SendUnreliableMessage<T>(T obj, Address recipient)
 ```
   
 ```csharp
-Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default) 
+void SendReliableMessage<T>(T obj, Address recipient, CancellationToken ct = default)
 ```
   
 ```csharp
-Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
+Task<object> RequestAsync<T>(T obj, Address recipient, CancellationToken ct = default) 
+```
+  
+```csharp
+Task<object> RequestAsync<T>(T obj, Address recipient, TimeSpan timeout, CancellationToken ct = default)
 ```
 
 </div>
