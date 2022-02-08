@@ -5,12 +5,13 @@ namespace Artemis.Sample.Extensions
 {
     internal class OnDestroyAsyncHook : MonoBehaviour
     {
-        private readonly CancellationTokenSource _cts = new();
-        public CancellationToken OnDestroyCancellationToken => _cts.Token;
+        public CancellationTokenSource CancellationTokenSource { get; private set; } = new();
 
         private void OnDestroy()
         {
-            _cts.Cancel();
+            CancellationTokenSource.Cancel();
+            CancellationTokenSource.Dispose();
+            CancellationTokenSource = null;
         }
     }
 }

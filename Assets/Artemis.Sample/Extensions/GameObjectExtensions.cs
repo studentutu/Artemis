@@ -6,7 +6,7 @@ public static class GameObjectExtensions
 {
     internal static CancellationToken GetOnDestroyCancellationToken(this GameObject gameObject)
     {
-        return gameObject.GetOrAddComponent<OnDestroyAsyncHook>().OnDestroyCancellationToken;
+        return gameObject.GetOrAddComponent<OnDestroyAsyncHook>().CancellationTokenSource.Token;
     }
 
     internal static T GetOrAddComponent<T>(this GameObject gameObject) where T : Component
