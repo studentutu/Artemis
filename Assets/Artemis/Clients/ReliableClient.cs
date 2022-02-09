@@ -11,13 +11,13 @@ namespace Artemis.Clients
     public class ReliableClient : ObjectClient
     {
         private readonly Thread _retransmissionThread;
-        private readonly PendingAckMessageQueue _pendingAckMsgQueue = new();
+        private readonly RetransmissionQueue _retransmissionQueue = new();
         private readonly PacketSequenceStorage _outgoingSequenceStorage = new();
         private readonly PacketSequenceStorage _incomingSequenceStorage = new();
 
         protected ReliableClient(int port = 0) : base(port)
         {
-            _retransmissionThread = new Thread(ResendPendingAckPackets);
+            _retransmissionThread = new Thread(RetransmitReliableMessages);
         }
 
         public override void Start()
@@ -32,7 +32,7 @@ namespace Artemis.Clients
             base.Dispose();
         }
 
-        private Message BuildMessage<T>(T payload, Address recipient, DeliveryMethod deliveryMethod)
+        private Message EncapsulatePayloadInsideAMessage<T>(T payload, Address recipient, DeliveryMethod deliveryMethod)
         {
             var sequence = _outgoingSequenceStorage.Get(recipient, deliveryMethod, 0) + 1;
             return new Message(sequence, payload, deliveryMethod);
@@ -44,41 +44,41 @@ namespace Artemis.Clients
             SendObject(message, recipient);
         }
 
-        public void SendUnreliableMessage<T>(T obj, Address recipient)
+        public void SendUnreliableMessage<T>(T payload, Address recipient)
         {
-            var message = BuildMessage(obj, recipient, DeliveryMethod.Unreliable);
+            var message = EncapsulatePayloadInsideAMessage(payload, recipient, DeliveryMethod.Unreliable);
             SendMessage(message, recipient);
         }
 
-        public void SendReliableMessage<T>(T obj, Address recipient, CancellationToken ct = default)
+        public void SendReliableMessage<T>(T payload, Address recipient, CancellationToken ct = default)
         {
-            var message = BuildMessage(obj, recipient, DeliveryMethod.Reliable);
+            var message = EncapsulatePayloadInsideAMessage(payload, recipient, DeliveryMethod.Reliable);
             SendMessage(message, recipient);
 
-            lock (_pendingAckMsgQueue)
+            lock (_retransmissionQueue)
             {
-                _pendingAckMsgQueue.Add(recipient, message);
+                _retransmissionQueue.Add(recipient, message);
             }
 
             ct.Register(() =>
             {
-                lock (_pendingAckMsgQueue)
+                lock (_retransmissionQueue)
                 {
                     Debug.Log("Removing reliable message from retransmission queue");
-                    _pendingAckMsgQueue.Remove(recipient, message.Sequence);
+                    _retransmissionQueue.Remove(recipient, message.Sequence);
                 }
             });
         }
 
-        private void ResendPendingAckPackets()
+        private void RetransmitReliableMessages()
         {
             while (true)
             {
                 Thread.Sleep(Configuration.RetransmissionInterval);
 
-                lock (_pendingAckMsgQueue)
+                lock (_retransmissionQueue)
                 {
-                    foreach (var (address, messages) in _pendingAckMsgQueue.Get())
+                    foreach (var (address, messages) in _retransmissionQueue.Get())
                     {
                         foreach (var message in messages.Take(Configuration.RetransmissionCapacity))
                         {
@@ -115,9 +115,9 @@ namespace Artemis.Clients
 
         private void HandleAcknowledgement(Ack ack, Address sender)
         {
-            lock (_pendingAckMsgQueue)
+            lock (_retransmissionQueue)
             {
-                _pendingAckMsgQueue.Remove(sender, ack.Sequence);
+                _retransmissionQueue.Remove(sender, ack.Sequence);
             }
         }
 

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace Artemis.ValueObjects
 {
-    internal class PendingAckMessageQueue
+    internal class RetransmissionQueue
     {
         private readonly List<Address> _list = new();
         private readonly Dictionary<Address, List<Message>> _dictionary = new();
