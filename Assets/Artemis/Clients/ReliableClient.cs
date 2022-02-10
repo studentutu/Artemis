@@ -98,10 +98,12 @@ namespace Artemis.Clients
         {
             var expectedSequence = _incomingSequenceStorage.Get(sender, message.DeliveryMethod, 0) + 1;
 
-            if (message.Sequence != expectedSequence)
+            var isDuplicateOrOutOfOrder = message.Sequence != expectedSequence;
+
+            if (isDuplicateOrOutOfOrder)
             {
                 //Debug.LogWarning($"Discarding reliable packet #{message.Sequence} with {message.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
-                return; // Discard duplicate or out or order
+                return;
             }
 
             if (message.DeliveryMethod == DeliveryMethod.Reliable)

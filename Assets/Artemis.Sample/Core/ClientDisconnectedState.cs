@@ -7,9 +7,14 @@ using UnityEngine;
 
 namespace Artemis.Sample.Core
 {
-    public class AClientDisconnectedState : AClientState
+    public class ClientDisconnectedState : AClientState
     {
         private string _host = "localhost";
+
+        public override void OnStateEntered(Client client)
+        {
+            Debug.Log($"[C] OnStateEntered {GetType().Name}");
+        }
 
         public override void OnGUI(Client client)
         {

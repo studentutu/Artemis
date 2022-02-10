@@ -1,5 +1,4 @@
 ﻿using Artemis.UserInterface;
-using Artemis.ValueObjects;
 using UnityEngine;
 
 namespace Artemis.Sample.Core
@@ -10,6 +9,7 @@ namespace Artemis.Sample.Core
         {
             server._client.RegisterRequestHandler<ConnectionRequest>(r => HandleConnectionRequest(r, server));
             server._client.RegisterMessageHandler<ClientDisconnectionMessage>(m => HandleDisconnectionMessage(m, server));
+            server._client.RegisterRequestHandler<Ping>(HandlePingRequest);
         }
 
         public override void OnGUI(Server server)
@@ -19,6 +19,7 @@ namespace Artemis.Sample.Core
 
         public override void OnDestroy(Server server)
         {
+            Debug.Log("OnDestroyServer");
             Shutdown(server);
         }
 
@@ -45,6 +46,11 @@ namespace Artemis.Sample.Core
         {
             server._connections.Remove(message.Sender);
             Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
+        }
+        
+        private void HandlePingRequest(Request<Ping> request)
+        {
+            request.Reply(new Pong());
         }
     }
 }

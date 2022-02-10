@@ -8,10 +8,11 @@ public class Client : MonoBehaviour
     public ArtemisClient _client;
     public Address ServerAddress;
 
+    public string State;
     public AClientState Current;
-    public readonly AClientState Disconnected = new AClientDisconnectedState();
-    public readonly AClientState Connecting = new AClientConnectingState();
-    public readonly AClientState Connected = new AClientConnectedState();
+    public readonly AClientState Disconnected = new ClientDisconnectedState();
+    public readonly AClientState Connecting = new ClientConnectingState();
+    public readonly AClientState Connected = new ClientConnectedState();
 
     private void Start()
     {
@@ -20,6 +21,7 @@ public class Client : MonoBehaviour
 
     private void OnGUI()
     {
+        State = Current.GetType().Name;
         using (new GUILayout.AreaScope(new Rect(8, 8, 200, Screen.height)))
         {
             using (new GUILayout.VerticalScope("box"))

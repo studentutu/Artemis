@@ -3,6 +3,7 @@ using System.Net;
 using UnityEngine;
 using System.Net.Sockets;
 using Artemis.Extensions;
+using Artemis.Threading;
 using Artemis.ValueObjects;
 
 namespace Artemis.Clients
@@ -45,6 +46,7 @@ namespace Artemis.Clients
             {
                 var sender = new IPEndPoint(IPAddress.Any, default);
                 var bytes = _client.EndReceive(ar, ref sender);
+                //UnityMainThreadDispatcher.Dispatch(() => HandleBytes(bytes, Address.FromIPEndPoint(sender)));
                 HandleBytes(bytes, Address.FromIPEndPoint(sender));
                 _client.BeginReceive(Receive, _client);
             }
