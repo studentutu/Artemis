@@ -5,10 +5,10 @@ namespace Artemis.Packets
     [Serializable]
     public class Response
     {
-        public readonly string Id;
+        public readonly Guid Id;
         public readonly object Payload;
 
-        public Response(string id, object payload)
+        public Response(Guid id, object payload)
         {
             Id = id;
             Payload = payload;

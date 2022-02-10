@@ -12,7 +12,7 @@ namespace Artemis.Clients
 {
     public class ArtemisClient : ReliableClient
     {
-        private readonly Dictionary<string, TaskCompletionSource<object>> _responses = new();
+        private readonly Dictionary<Guid, TaskCompletionSource<object>> _responses = new();
         private readonly Dictionary<Type, Action<Message, Address>> _messageHandlers = new();
         private readonly Dictionary<Type, Action<Request, Address>> _requestHandlers = new();
 

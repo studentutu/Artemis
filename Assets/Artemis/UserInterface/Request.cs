@@ -1,4 +1,5 @@
-﻿using Artemis.Clients;
+﻿using System;
+using Artemis.Clients;
 using Artemis.Packets;
 using Artemis.ValueObjects;
 
@@ -8,10 +9,10 @@ namespace Artemis.UserInterface
     {
         public readonly TRequest Payload;
         public readonly Address Sender;
-        private readonly string _id;
+        private readonly Guid _id;
         private readonly ArtemisClient _means;
 
-        public Request(string id, TRequest request, Address sender, ArtemisClient means)
+        public Request(Guid id, TRequest request, Address sender, ArtemisClient means)
         {
             _id = id;
             Payload = request;
