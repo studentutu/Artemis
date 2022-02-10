@@ -8,7 +8,8 @@ using UnityEngine;
 public class LatencyService : MonoBehaviour
 {
     private readonly Ping _ping = new Ping();
-    private readonly TimeSpan _pingInterval = TimeSpan.FromSeconds(1);
+    private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(1);
+    private readonly TimeSpan _pingInterval = TimeSpan.FromMilliseconds(250);
     
     public Client Client;
     public double RoundTripTime;
@@ -22,7 +23,7 @@ public class LatencyService : MonoBehaviour
     {
         while (!ct.IsCancellationRequested)
         {
-            await Task.Delay(TimeSpan.FromSeconds(1), ct);
+            await Task.Delay(_pingInterval, ct);
             RoundTripTime = await CalculateRoundTrpTime(ct);
         }
     }
@@ -35,7 +36,7 @@ public class LatencyService : MonoBehaviour
         }
         
         var timeAtRequest = DateTime.Now;
-        await Client._client.RequestAsync(_ping, Client.ServerAddress, _pingInterval, ct);
+        await Client._client.RequestAsync(_ping, Client.ServerAddress, _pingTimeout, ct);
         var timeAtResponse = DateTime.Now;
         return (timeAtResponse - timeAtRequest).Ticks;
     }
