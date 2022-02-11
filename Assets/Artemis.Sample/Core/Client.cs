@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Artemis.Clients;
 using Artemis.Sample.Core;
@@ -8,6 +9,8 @@ public class Client : MonoBehaviour
     public ArtemisClient _client;
     public Address ServerAddress;
 
+    public DateTime ServerTimeAtFirstTick;
+    public int Tick;
     public string State;
     public AClientState Current;
     public readonly AClientState Disconnected = new ClientDisconnectedState();

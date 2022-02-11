@@ -84,7 +84,7 @@ namespace Artemis.Clients
         {
             if (_responses.Remove(response.Id, out var tcs))
             {
-                tcs.TrySetResult(response);
+                tcs.TrySetResult(response.Payload);
             }
             else
             {

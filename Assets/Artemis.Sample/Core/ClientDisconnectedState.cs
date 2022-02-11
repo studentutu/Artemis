@@ -4,6 +4,7 @@ using Artemis.Clients;
 using Artemis.Utilities;
 using Artemis.ValueObjects;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Artemis.Sample.Core
 {
@@ -33,9 +34,10 @@ namespace Artemis.Sample.Core
                 client.Switch(client.Connecting);
                 client._client = new ArtemisClient(Array.Empty<Handler>());
                 client._client.Start();
-                client.ServerAddress = Address.FromHostname(host, Constants.ServerPort);
+                client.ServerAddress = Address.FromHostname(host, Configuration.ServerPort);
                 var ct = client.gameObject.GetOnDestroyCancellationToken();
                 await client._client.RequestAsync(new ConnectionRequest(), client.ServerAddress, ct);
+                await Object.FindObjectOfType<NetClock>().Synchronize(client, ct);
                 Debug.Log("Starting completed");
                 client.Switch(client.Connected);
             }

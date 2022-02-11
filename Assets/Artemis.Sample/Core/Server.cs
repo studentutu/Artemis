@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Artemis.Clients;
 using Artemis.ValueObjects;
@@ -9,9 +10,11 @@ public class Server : MonoBehaviour
     public ArtemisClient _client;
     public readonly List<Address> _connections = new List<Address>();
 
+    public int Tick;
+    public DateTime TimeAtFirstTick;
     public AServerState Current;
-    public readonly AServerState Stopped = new AServerStoppedState();
-    public readonly AServerState Running = new AServerRunningState();
+    public readonly AServerState Stopped = new ServerStoppedState();
+    public readonly AServerState Running = new ServerRunningState();
 
     public void Switch(AServerState state)
     {
