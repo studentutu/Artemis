@@ -11,6 +11,7 @@ namespace Artemis.Sample.Core
         
         public override void OnStateEntered(Client client)
         {
+            Debug.Log("OnClientConnectedStateEntered");
             _netClock = Object.FindObjectOfType<NetClock>();
             client._client.RegisterHandler(new ServerClosingMessageHandler(() => Disconnect(client))); // TODO I didn't very liked this, its leaking ClientConnectedState behaviour
             _gameLoopThread = new Thread(() => ServerLoop(client));

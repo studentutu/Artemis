@@ -8,7 +8,7 @@ using Artemis.Sample.Core;
 public class Server : MonoBehaviour
 {
     public ArtemisClient _client;
-    public readonly List<Address> _connections = new List<Address>();
+    public readonly List<PlayerData> _players = new();
 
     public int Tick;
     public DateTime TimeAtFirstTick;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Clients;
 using Artemis.Utilities;
@@ -32,11 +33,11 @@ namespace Artemis.Sample.Core
             {
                 Debug.Log("Starting connection");
                 client.Switch(client.Connecting);
-                client._client = new ArtemisClient(Array.Empty<Handler>());
-                client._client.Start();
-                client.ServerAddress = Address.FromHostname(host, Configuration.ServerPort);
+                InitializeClient(client, host);
                 var ct = client.gameObject.GetOnDestroyCancellationToken();
-                await client._client.RequestAsync(new ConnectionRequest(), client.ServerAddress, ct);
+                var response = await RequestConnection(client, ct);
+                client.PlayerId = response.PlayerId;
+                Debug.LogError($"[C] Connected as {response.PlayerId}");
                 await Object.FindObjectOfType<NetClock>().Synchronize(client, ct);
                 Debug.Log("Starting completed");
                 client.Switch(client.Connected);
@@ -51,6 +52,22 @@ namespace Artemis.Sample.Core
 
                 client.Switch(client.Disconnected);
             }
+        }
+
+        private static void InitializeClient(Client client, string serverHostname)
+        {
+            client._client = new ArtemisClient(Array.Empty<Handler>());
+            client._client.Start();
+            client.ServerAddress = Address.FromHostname(serverHostname, Configuration.ServerPort);
+            client._client.RegisterHandler(new PlayerJoinedMessageHandler(client));
+        }
+
+        private static Task<ConnectionResponse> RequestConnection(Client client, CancellationToken ct)
+        {
+            var request = new ConnectionRequest(Environment.MachineName);
+            return client._client
+                .RequestAsync(request, client.ServerAddress, ct)
+                .ContinueWith(t => (ConnectionResponse) t.Result, ct);
         }
     }
 }

@@ -9,10 +9,10 @@ public class ClientDisconnectionMessageHandler : IMessageHandler<ClientDisconnec
     {
         _server = server;
     }
-    
+
     public void Handle(Message<ClientDisconnectionMessage> message)
     {
-        _server._connections.Remove(message.Sender);
+        _server._players.Remove(_server._players.Find(p => p.Address == message.Sender));
         Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
     }
 }

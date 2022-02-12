@@ -9,6 +9,7 @@ public class Client : MonoBehaviour
     public ArtemisClient _client;
     public Address ServerAddress;
 
+    public Guid PlayerId;
     public DateTime ServerTimeAtFirstTick;
     public int Tick;
     public string State;

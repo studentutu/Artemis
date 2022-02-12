@@ -50,9 +50,9 @@ namespace Artemis.Sample.Core
         {
             _gameLoopThread.Abort();
             
-            foreach (var connection in server._connections)
+            foreach (var player in server._players)
             {
-                server._client.SendUnreliableMessage(new ServerClosingMessage(), connection);
+                server._client.SendUnreliableMessage(new ServerClosingMessage(), player.Address);
             }
             
             server._client.Dispose();

@@ -4,11 +4,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Sample.Extensions;
 using Artemis.Sample.Features.ClockSynchonization;
-using Artemis.Sample.Features.ReadOnlyField;
 
 public class NetClock : MonoBehaviour
 {
-    [field: SerializeField, ReadOnly] public string Offset { get; private set; }
+    [field: SerializeField] public string Offset { get; private set; }
     private TimeSpan _offset;
 
     private void Update()
