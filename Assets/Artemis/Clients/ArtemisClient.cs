@@ -24,6 +24,16 @@ namespace Artemis.Clients
             }
         }
 
+        public void RegisterHandler<T>(IRequestHandler<T> handler)
+        {
+            RegisterRequestHandler<T>(handler.Handle);
+        }
+        
+        public void RegisterHandler<T>(IMessageHandler<T> handler)
+        {
+            RegisterMessageHandler<T>(handler.Handle);
+        }
+
         public void RegisterMessageHandler<T>(Action<Message<T>> handler)
         {
             _messageHandlers.Add(typeof(T), (message, sender) =>

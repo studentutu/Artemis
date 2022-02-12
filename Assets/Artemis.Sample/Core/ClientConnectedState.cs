@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using UnityEngine;
+﻿using UnityEngine;
+using System.Threading;
 using UnityEngine.Assertions;
 
 namespace Artemis.Sample.Core
@@ -12,8 +12,7 @@ namespace Artemis.Sample.Core
         public override void OnStateEntered(Client client)
         {
             _netClock = Object.FindObjectOfType<NetClock>();
-            Debug.Log($"[C] OnStateEntered {GetType().Name}");
-            client._client.RegisterMessageHandler<ServerClosingMessage>(_ => HandleServerClosingMessage(client));
+            client._client.RegisterHandler(new ServerClosingMessageHandler(() => Disconnect(client))); // TODO I didn't very liked this, its leaking ClientConnectedState behaviour
             _gameLoopThread = new Thread(() => ServerLoop(client));
             _gameLoopThread.Start();
         }
@@ -50,12 +49,6 @@ namespace Artemis.Sample.Core
             client._client.Dispose();
             client._client = null;
             client.Switch(client.Disconnected);
-        }
-
-        private void HandleServerClosingMessage(Client client)
-        {
-            Debug.Log("OnDestroyByServer");
-            Disconnect(client);
         }
     }
 }

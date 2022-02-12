@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using Artemis.Sample.Features.ClockSynchonization;
 using Artemis.UserInterface;
 using UnityEngine;
 
@@ -13,10 +12,12 @@ namespace Artemis.Sample.Core
         public override void OnStateEntered(Server server)
         {
             server.Tick = 0;
-            server._client.RegisterRequestHandler<ConnectionRequest>(r => HandleConnectionRequest(r, server));
-            server._client.RegisterMessageHandler<ClientDisconnectionMessage>(m => HandleDisconnectionMessage(m, server));
-            server._client.RegisterRequestHandler<Ping>(HandlePingRequest);
-            server._client.RegisterRequestHandler<GetTimeRequest>((r) => HandleTimeRequest(r, server));
+            
+            server._client.RegisterHandler(new PingRequestHandler());
+            server._client.RegisterHandler(new GetTimeRequestHandler(server));
+            server._client.RegisterHandler(new ConnectionRequestHandler(server));
+            server._client.RegisterHandler(new ClientDisconnectionMessageHandler(server));
+            
             _gameLoopThread = new Thread(() => ServerLoop(server));
             _gameLoopThread.Start();
         }
@@ -57,29 +58,6 @@ namespace Artemis.Sample.Core
             server._client.Dispose();
             server._client = null;
             server.Switch(server.Stopped);
-        }
-
-        private static void HandleConnectionRequest(Request<ConnectionRequest> request, Server server)
-        {
-            server._connections.Add(request.Sender);
-            request.Reply(new ConnectionResponse());
-            Debug.Log($"<b>[S]</b> Client {request.Sender} Connected!");
-        }
-
-        private static void HandleDisconnectionMessage(Message<ClientDisconnectionMessage> message, Server server)
-        {
-            server._connections.Remove(message.Sender);
-            Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
-        }
-        
-        private void HandlePingRequest(Request<Ping> request)
-        {
-            request.Reply(new Pong());
-        }
-        
-        private void HandleTimeRequest(Request<GetTimeRequest> request, Server server)
-        {
-            request.Reply(new GetTimeResponse(server.Tick, DateTime.UtcNow, server.TimeAtFirstTick));
         }
     }
 }
