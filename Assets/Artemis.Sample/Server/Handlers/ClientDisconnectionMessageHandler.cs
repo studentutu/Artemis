@@ -16,11 +16,11 @@ namespace Artemis.Sample.Server.Handlers
         public void Handle(Message<ClientDisconnectionMessage> message)
         {
             Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
-            _dapperServer._players.Remove(_dapperServer._players.Find(p => p.Address == message.Sender));
+            _dapperServer._players.Remove(_dapperServer._players.Find(p => p.Item1 == message.Sender));
 
             foreach (var player in _dapperServer._players)
             {
-                _dapperServer._client.SendReliableMessage(message.Payload, player.Address, _dapperServer.CancellationTokenOnDestroy);
+                _dapperServer._client.SendReliableMessage(message.Payload, player.Item1, _dapperServer.CancellationTokenOnDestroy);
             }
         }
     }

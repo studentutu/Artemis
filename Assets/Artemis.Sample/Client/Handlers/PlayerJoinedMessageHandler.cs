@@ -9,10 +9,10 @@ public class PlayerJoinedMessageHandler : IMessageHandler<PlayerJoinedMessage>
         UnityMainThreadDispatcher.Dispatch(() =>
         {
             SpawnPlayer.Spawn(
-                message.Payload.PlayerId,
-                message.Payload.Nickname,
-                message.Payload.Color,
-                message.Payload.Position,
+                message.Payload.PlayerData.Id,
+                message.Payload.PlayerData.Nickname,
+                message.Payload.PlayerData.Color,
+                message.Payload.PlayerData.Position,
                 isLocalPlayer: false);
         });
     }

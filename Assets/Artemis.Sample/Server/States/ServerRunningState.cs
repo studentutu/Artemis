@@ -16,6 +16,7 @@ namespace Artemis.Sample.Server.States
             
             dapperServer._client.RegisterHandler(new PingRequestHandler());
             dapperServer._client.RegisterHandler(new GetTimeRequestHandler(dapperServer));
+            dapperServer._client.RegisterHandler(new GetOthersRequestHandler(dapperServer));
             dapperServer._client.RegisterHandler(new ConnectionRequestHandler(dapperServer));
             dapperServer._client.RegisterHandler(new ClientDisconnectionMessageHandler(dapperServer));
             
@@ -53,7 +54,7 @@ namespace Artemis.Sample.Server.States
             
             foreach (var player in dapperServer._players)
             {
-                dapperServer._client.SendUnreliableMessage(new ServerClosingMessage(), player.Address);
+                dapperServer._client.SendUnreliableMessage(new ServerClosingMessage(), player.Item1);
             }
             
             dapperServer._client.Dispose();

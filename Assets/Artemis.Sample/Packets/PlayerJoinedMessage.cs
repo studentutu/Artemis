@@ -1,19 +1,13 @@
 using System;
-using Artemis.Sample.ValueObjects;
+using Artemis.Sample.Core;
 
 [Serializable]
 public class PlayerJoinedMessage
 {
-    public readonly Guid PlayerId;
-    public readonly string Nickname;
-    public readonly Color Color;
-    public Float2 Position;
+    public readonly PlayerData PlayerData;
 
-    public PlayerJoinedMessage(Guid playerId, string nickname, Color color, Float2 position)
+    public PlayerJoinedMessage(PlayerData playerData)
     {
-        PlayerId = playerId;
-        Nickname = nickname;
-        Color = color;
-        Position = position;
+        PlayerData = playerData;
     }
 }

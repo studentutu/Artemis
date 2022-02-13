@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Clients;
 using Artemis.Sample.Client.Handlers;
+using Artemis.Sample.Packets;
 using Artemis.Sample.Player;
 using Artemis.Threading;
 using Artemis.Utilities;
@@ -38,19 +39,31 @@ namespace Artemis.Sample.Core
                 InitializeClient(dapperClient, host);
                 var ct = dapperClient.gameObject.GetOnDestroyCancellationToken();
                 var response = await RequestConnection(dapperClient, ct);
-                dapperClient.PlayerId = response.PlayerId;
+                dapperClient.PlayerId = response.PlayerData.Id;
                 await Object.FindObjectOfType<NetClock>().Synchronize(dapperClient, ct);
-                dapperClient.Switch(dapperClient.Connected);
-                
+                var getOthersResponse = await RequestGetOthers(dapperClient, ct);
+
                 UnityMainThreadDispatcher.Dispatch(() =>
                 {
+                    foreach (var other in getOthersResponse.Others)
+                    {
+                        SpawnPlayer.Spawn(
+                            other.Id,
+                            other.Nickname,
+                            other.Color,
+                            other.Position,
+                            isLocalPlayer: false);
+                    }
+
                     SpawnPlayer.Spawn(
-                        response.PlayerId,
-                        response.Nickname,
-                        response.Color,
-                        response.Position,
+                        response.PlayerData.Id,
+                        response.PlayerData.Nickname,
+                        response.PlayerData.Color,
+                        response.PlayerData.Position,
                         isLocalPlayer: true);
                 });
+                
+                dapperClient.Switch(dapperClient.Connected);
             }
             catch (Exception e)
             {
@@ -79,6 +92,14 @@ namespace Artemis.Sample.Core
             return dapperClient._client
                 .RequestAsync(request, dapperClient.ServerAddress, ct)
                 .ContinueWith(t => (ConnectionResponse) t.Result, ct);
+        }
+        
+        private static Task<GetOthersResponse> RequestGetOthers(DapperClient dapperClient, CancellationToken ct)
+        {
+            var request = new GetOthersRequest();
+            return dapperClient._client
+                .RequestAsync(request, dapperClient.ServerAddress, ct)
+                .ContinueWith(t => (GetOthersResponse) t.Result, ct);
         }
     }
 }

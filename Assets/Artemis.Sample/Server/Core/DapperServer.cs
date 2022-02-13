@@ -4,6 +4,7 @@ using System.Threading;
 using Artemis.Clients;
 using Artemis.Sample.Core;
 using Artemis.Sample.Server.States;
+using Artemis.ValueObjects;
 using UnityEngine;
 
 namespace Artemis.Sample.Server.Core
@@ -11,7 +12,7 @@ namespace Artemis.Sample.Server.Core
     public class DapperServer : MonoBehaviour
     {
         public ArtemisClient _client;
-        public readonly List<PlayerData> _players = new();
+        public readonly List<(Address, PlayerData)> _players = new();
         public CancellationToken CancellationTokenOnDestroy { get; private set; }
 
         public int Tick;

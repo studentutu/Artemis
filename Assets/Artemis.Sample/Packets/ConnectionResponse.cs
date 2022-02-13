@@ -1,22 +1,16 @@
 ﻿using System;
-using Artemis.Sample.ValueObjects;
+using Artemis.Sample.Core;
 
 namespace Artemis.Sample
 {
     [Serializable]
     public class ConnectionResponse
     {
-        public readonly Guid PlayerId;
-        public readonly string Nickname;
-        public readonly Color Color;
-        public readonly Float2 Position;
+        public readonly PlayerData PlayerData;
 
-        public ConnectionResponse(Guid playerId, string nickname, Color color, Float2 position)
+        public ConnectionResponse(PlayerData playerData)
         {
-            PlayerId = playerId;
-            Nickname = nickname;
-            Color = color;
-            Position = position;
+            PlayerData = playerData;
         }
     }
 }

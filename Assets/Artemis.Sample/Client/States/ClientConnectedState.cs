@@ -44,7 +44,7 @@ namespace Artemis.Sample.Core
 
         private void Disconnect(DapperClient dapperClient)
         {
-            UnityMainThreadDispatcher.Dispatch(() => DespawnPlayer.Despawn(dapperClient.PlayerId));
+            UnityMainThreadDispatcher.Dispatch(DespawnPlayer.DespawnAll);
             _gameLoopThread.Abort();
             Debug.Log($"Disco: {dapperClient.Current.GetType().Name}");
             Assert.IsNotNull(dapperClient);

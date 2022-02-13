@@ -11,5 +11,13 @@ namespace Artemis.Sample.Player
             var view = views.Single(v => v.PlayerId == playerId);
             UnityEngine.Object.Destroy(view.gameObject);
         }
+        
+        public static void DespawnAll()
+        {
+            foreach (var view in UnityEngine.Object.FindObjectsOfType<PlayerView>())
+            {
+                UnityEngine.Object.Destroy(view.gameObject);
+            }
+        }
     }
 }
