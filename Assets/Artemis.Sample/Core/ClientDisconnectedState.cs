@@ -2,6 +2,8 @@
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Clients;
+using Artemis.Sample.Player;
+using Artemis.Threading;
 using Artemis.Utilities;
 using Artemis.ValueObjects;
 using UnityEngine;
@@ -31,16 +33,22 @@ namespace Artemis.Sample.Core
         {
             try
             {
-                Debug.Log("Starting connection");
                 client.Switch(client.Connecting);
                 InitializeClient(client, host);
                 var ct = client.gameObject.GetOnDestroyCancellationToken();
                 var response = await RequestConnection(client, ct);
                 client.PlayerId = response.PlayerId;
-                Debug.LogError($"[C] Connected as {response.PlayerId}");
                 await Object.FindObjectOfType<NetClock>().Synchronize(client, ct);
-                Debug.Log("Starting completed");
                 client.Switch(client.Connected);
+                
+                UnityMainThreadDispatcher.Dispatch(() =>
+                {
+                    InstantiatePlayer.Instantiate(
+                        response.Nickname,
+                        response.Color.ToUnityColor(),
+                        new Vector2(response.X, response.Y),
+                        isLocalPlayer: true);
+                });
             }
             catch (Exception e)
             {
@@ -59,7 +67,7 @@ namespace Artemis.Sample.Core
             client._client = new ArtemisClient(Array.Empty<Handler>());
             client._client.Start();
             client.ServerAddress = Address.FromHostname(serverHostname, Configuration.ServerPort);
-            client._client.RegisterHandler(new PlayerJoinedMessageHandler(client));
+            client._client.RegisterHandler(new PlayerJoinedMessageHandler());
         }
 
         private static Task<ConnectionResponse> RequestConnection(Client client, CancellationToken ct)

@@ -56,15 +56,15 @@ namespace Artemis.Clients
             switch (message.Payload)
             {
                 case Request request:
-                    Debug.Log($"handling response of type {request.Payload.GetType().FullName} from {sender}");
+                    //Debug.Log($"handling response of type {request.Payload.GetType().FullName} from {sender}");
                     HandleRequest(request, sender);
                     break;
                 case Response response:
-                    Debug.Log($"handling response of type {response.Payload.GetType().FullName} from {sender}");
+                    //Debug.Log($"handling response of type {response.Payload.GetType().FullName} from {sender}");
                     HandleResponse(response, sender);
                     break;
                 default:
-                    Debug.Log($"handling message of type {message.Payload.GetType().FullName} from {sender}");
+                    //Debug.Log($"handling message of type {message.Payload.GetType().FullName} from {sender}");
                     HandleUserMessage(message, sender);
                     break;
             }
