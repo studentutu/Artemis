@@ -8,7 +8,8 @@ public class PlayerJoinedMessageHandler : IMessageHandler<PlayerJoinedMessage>
     {
         UnityMainThreadDispatcher.Dispatch(() =>
         {
-            InstantiatePlayer.Instantiate(
+            SpawnPlayer.Spawn(
+                message.Payload.PlayerId,
                 message.Payload.Nickname,
                 message.Payload.Color,
                 message.Payload.Position,

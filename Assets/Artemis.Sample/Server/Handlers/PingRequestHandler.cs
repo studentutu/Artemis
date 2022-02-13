@@ -1,9 +1,12 @@
 ﻿using Artemis.UserInterface;
 
-public class PingRequestHandler : IRequestHandler<Ping>
+namespace Artemis.Sample.Server.Handlers
 {
-    public void Handle(Request<Ping> request)
+    public class PingRequestHandler : IRequestHandler<Ping>
     {
-        request.Reply(new Pong());
+        public void Handle(Request<Ping> request)
+        {
+            request.Reply(new Pong());
+        }
     }
 }

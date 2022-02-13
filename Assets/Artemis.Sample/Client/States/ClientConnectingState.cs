@@ -9,12 +9,12 @@ namespace Artemis.Sample.Core
             "Connecting", "Connecting.", "Connecting..", "Connecting..."
         };
 
-        public override void OnStateEntered(Client client)
+        public override void OnStateEntered(DapperClient dapperClient)
         {
             Debug.Log($"[C] OnStateEntered {GetType().Name}");
         }
 
-        public override void OnGUI(Client client)
+        public override void OnGUI(DapperClient dapperClient)
         {
             var index = Mathf.CeilToInt(Time.frameCount * 0.005f) % _labels.Length;
             GUILayout.Label(_labels[index]);

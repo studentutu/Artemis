@@ -4,7 +4,7 @@ using Artemis.Clients;
 using Artemis.Sample.Core;
 using Artemis.ValueObjects;
 
-public class Client : MonoBehaviour
+public class DapperClient : MonoBehaviour
 {
     public ArtemisClient _client;
     public Address ServerAddress;

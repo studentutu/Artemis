@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83e7698edffad7749893d8a2613c55df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  <GameObject>k__BackingField: {fileID: 176943528}
   Tick: 0
 --- !u!4 &176943530
 Transform:

@@ -11,7 +11,7 @@ public class LatencyService : MonoBehaviour
     private readonly TimeSpan _pingTimeout = TimeSpan.FromSeconds(1);
     private readonly TimeSpan _pingInterval = TimeSpan.FromMilliseconds(250);
     
-    public Client Client;
+    public DapperClient _dapperClient;
     public double RoundTripTime;
 
     private void Start()
@@ -30,13 +30,13 @@ public class LatencyService : MonoBehaviour
     
     private async Task<double> CalculateRoundTrpTime(CancellationToken ct)
     {
-        if (Client.Current.GetType() != typeof(ClientConnectedState))
+        if (_dapperClient.Current.GetType() != typeof(ClientConnectedState))
         {
             return await Task.FromResult(-1);
         }
         
         var timeAtRequest = DateTime.Now;
-        await Client._client.RequestAsync(_ping, Client.ServerAddress, _pingTimeout, ct);
+        await _dapperClient._client.RequestAsync(_ping, _dapperClient.ServerAddress, _pingTimeout, ct);
         var timeAtResponse = DateTime.Now;
         return (timeAtResponse - timeAtRequest).Ticks;
     }

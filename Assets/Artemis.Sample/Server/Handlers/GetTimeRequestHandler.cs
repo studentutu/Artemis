@@ -1,19 +1,23 @@
 ﻿using System;
-using Artemis.UserInterface;
 using Artemis.Sample.Features.ClockSynchonization;
+using Artemis.Sample.Server.Core;
+using Artemis.UserInterface;
 
-public class GetTimeRequestHandler : IRequestHandler<GetTimeRequest>
+namespace Artemis.Sample.Server.Handlers
 {
-    private readonly Server _server;
+    public class GetTimeRequestHandler : IRequestHandler<GetTimeRequest>
+    {
+        private readonly DapperServer _dapperServer;
 
-    public GetTimeRequestHandler(Server server)
-    {
-        _server = server;
-    }
+        public GetTimeRequestHandler(DapperServer dapperServer)
+        {
+            _dapperServer = dapperServer;
+        }
     
-    public void Handle(Request<GetTimeRequest> request)
-    {
-        var response = new GetTimeResponse(_server.Tick, DateTime.UtcNow, _server.TimeAtFirstTick);
-        request.Reply(response);
+        public void Handle(Request<GetTimeRequest> request)
+        {
+            var response = new GetTimeResponse(_dapperServer.Tick, DateTime.UtcNow, _dapperServer.TimeAtFirstTick);
+            request.Reply(response);
+        }
     }
 }

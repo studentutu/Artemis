@@ -1,43 +1,45 @@
 ﻿using System;
-using UnityEngine;
-using Artemis.Sample;
 using Artemis.Sample.Core;
 using Artemis.Sample.Player;
+using Artemis.Sample.Server.Core;
 using Artemis.Sample.ValueObjects;
 using Artemis.UserInterface;
+using UnityEngine;
 using Color = Artemis.Sample.ValueObjects.Color;
-using Random = System.Random;
 
-public class ConnectionRequestHandler : IRequestHandler<ConnectionRequest>
+namespace Artemis.Sample.Server.Handlers
 {
-    private readonly Server _server;
+    public class ConnectionRequestHandler : IRequestHandler<ConnectionRequest>
+    {
+        private readonly DapperServer _dapperServer;
 
-    private bool IsSomethingEnabled;
+        private bool IsSomethingEnabled;
     
-    public ConnectionRequestHandler(Server server)
-    {
-        _server = server;
-    }
-
-    public void Handle(Request<ConnectionRequest> request)
-    {
-        var position = new Float2(Dice.RollRange(-1f, +1f), Dice.RollRange(-1f, +1f));
-        var hsv = Color.FromHSV(Dice.RollRange(0f, 1f), 1, 1);
-        var playerData = new PlayerData(Guid.NewGuid(), request.Sender, request.Payload.Nickname, hsv, position);
-        BroadcastPlayerJoinedNotification(playerData.Id, playerData.Nickname, playerData.Color, playerData.Position);
-        request.Reply(new ConnectionResponse(playerData.Id, playerData.Nickname, playerData.Color, position));
-        _server._players.Add(playerData);
-
-        Debug.Log($"<b>[S]</b> Client {request.Sender} Connected!");
-    }
-
-    private void BroadcastPlayerJoinedNotification(Guid playerId, string nickname, Color color, Float2 position)
-    {
-        var notification = new PlayerJoinedMessage(playerId, nickname, color, position);
-        
-        foreach (var player in _server._players)
+        public ConnectionRequestHandler(DapperServer dapperServer)
         {
-            _server._client.SendReliableMessage(notification, player.Address);
+            _dapperServer = dapperServer;
+        }
+
+        public void Handle(Request<ConnectionRequest> request)
+        {
+            var position = new Float2(Dice.RollRange(-1f, +1f), Dice.RollRange(-1f, +1f));
+            var hsv = Color.FromHSV(Dice.RollRange(0f, 1f), 1, 1);
+            var playerData = new PlayerData(Guid.NewGuid(), request.Sender, request.Payload.Nickname, hsv, position);
+            BroadcastPlayerJoinedNotification(playerData.Id, playerData.Nickname, playerData.Color, playerData.Position);
+            request.Reply(new ConnectionResponse(playerData.Id, playerData.Nickname, playerData.Color, position));
+            _dapperServer._players.Add(playerData);
+
+            Debug.Log($"<b>[S]</b> Client {request.Sender} Connected!");
+        }
+
+        private void BroadcastPlayerJoinedNotification(Guid playerId, string nickname, Color color, Float2 position)
+        {
+            var notification = new PlayerJoinedMessage(playerId, nickname, color, position);
+        
+            foreach (var player in _dapperServer._players)
+            {
+                _dapperServer._client.SendReliableMessage(notification, player.Address);
+            }
         }
     }
 }

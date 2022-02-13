@@ -15,23 +15,23 @@ public class NetClock : MonoBehaviour
         Offset = _offset.ToReadableString();
     }
 
-    public async Task Synchronize(Client client, CancellationToken ct)
+    public async Task Synchronize(DapperClient dapperClient, CancellationToken ct)
     {
         var timeAtRequest = DateTime.Now;
-        var response = await GetServerTime(client, ct);
+        var response = await GetServerTime(dapperClient, ct);
         var timeAtResponse = DateTime.Now;
         var roundTripTime = timeAtResponse - timeAtRequest;
         var latency = roundTripTime / 2f;
         var serverTimeNow = response.Time + latency;
         _offset = serverTimeNow - DateTime.Now;
-        client.ServerTimeAtFirstTick = response.TimeAtFirstTick;
+        dapperClient.ServerTimeAtFirstTick = response.TimeAtFirstTick;
     }
 
-    private Task<GetTimeResponse> GetServerTime(Client client, CancellationToken ct)
+    private Task<GetTimeResponse> GetServerTime(DapperClient dapperClient, CancellationToken ct)
     {
         var request = new GetTimeRequest();
-        var serverAddress = client.ServerAddress;
-        return client._client.RequestAsync(request, serverAddress, ct)
+        var serverAddress = dapperClient.ServerAddress;
+        return dapperClient._client.RequestAsync(request, serverAddress, ct)
             .ContinueWith(t => (GetTimeResponse) t.Result, ct);
     }
 

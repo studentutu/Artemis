@@ -1,18 +1,27 @@
-﻿using UnityEngine;
+﻿using Artemis.Sample.Server.Core;
 using Artemis.UserInterface;
+using UnityEngine;
 
-public class ClientDisconnectionMessageHandler : IMessageHandler<ClientDisconnectionMessage>
+namespace Artemis.Sample.Server.Handlers
 {
-    private readonly Server _server;
-
-    public ClientDisconnectionMessageHandler(Server server)
+    public class ClientDisconnectionMessageHandler : IMessageHandler<ClientDisconnectionMessage>
     {
-        _server = server;
-    }
+        private readonly DapperServer _dapperServer;
 
-    public void Handle(Message<ClientDisconnectionMessage> message)
-    {
-        _server._players.Remove(_server._players.Find(p => p.Address == message.Sender));
-        Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
+        public ClientDisconnectionMessageHandler(DapperServer dapperServer)
+        {
+            _dapperServer = dapperServer;
+        }
+
+        public void Handle(Message<ClientDisconnectionMessage> message)
+        {
+            Debug.Log($"<b>[S]</b> Client {message.Sender} has disconnected gracefully :)");
+            _dapperServer._players.Remove(_dapperServer._players.Find(p => p.Address == message.Sender));
+
+            foreach (var player in _dapperServer._players)
+            {
+                _dapperServer._client.SendReliableMessage(message.Payload, player.Address, _dapperServer.CancellationTokenOnDestroy);
+            }
+        }
     }
 }
