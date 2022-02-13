@@ -1,5 +1,6 @@
 ﻿using System;
 using Artemis.Sample.Player;
+using Artemis.Sample.ValueObjects;
 using Artemis.ValueObjects;
 
 namespace Artemis.Sample.Core
@@ -9,18 +10,16 @@ namespace Artemis.Sample.Core
         public readonly Guid Id;
         public readonly Address Address;
         public readonly string Nickname;
-        public readonly HSV Color;
-        public float X;
-        public float Y;
+        public readonly Color Color;
+        public Float2 Position;
 
-        public PlayerData(Guid id, Address address, string nickname, HSV color, float x, float y)
+        public PlayerData(Guid id, Address address, string nickname, Color color, Float2 position)
         {
             Id = id;
             Address = address;
             Nickname = nickname;
             Color = color;
-            X = x;
-            Y = y;
+            Position = position;
         }
     }
 }

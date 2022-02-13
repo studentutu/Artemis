@@ -1,7 +1,6 @@
 ﻿using Artemis.Sample.Player;
 using Artemis.Threading;
 using Artemis.UserInterface;
-using UnityEngine;
 
 public class PlayerJoinedMessageHandler : IMessageHandler<PlayerJoinedMessage>
 {
@@ -11,8 +10,8 @@ public class PlayerJoinedMessageHandler : IMessageHandler<PlayerJoinedMessage>
         {
             InstantiatePlayer.Instantiate(
                 message.Payload.Nickname,
-                message.Payload.Color.ToUnityColor(),
-                new Vector2(message.Payload.X, message.Payload.Y),
+                message.Payload.Color,
+                message.Payload.Position,
                 isLocalPlayer: false);
         });
     }

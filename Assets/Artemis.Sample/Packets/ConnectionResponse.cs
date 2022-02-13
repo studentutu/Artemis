@@ -1,5 +1,5 @@
 ﻿using System;
-using Artemis.Sample.Player;
+using Artemis.Sample.ValueObjects;
 
 namespace Artemis.Sample
 {
@@ -8,17 +8,15 @@ namespace Artemis.Sample
     {
         public readonly Guid PlayerId;
         public readonly string Nickname;
-        public readonly HSV Color;
-        public readonly float X;
-        public readonly float Y;
+        public readonly Color Color;
+        public readonly Float2 Position;
 
-        public ConnectionResponse(Guid playerId, string nickname, HSV color, float x, float y)
+        public ConnectionResponse(Guid playerId, string nickname, Color color, Float2 position)
         {
             PlayerId = playerId;
             Nickname = nickname;
             Color = color;
-            X = x;
-            Y = y;
+            Position = position;
         }
     }
 }

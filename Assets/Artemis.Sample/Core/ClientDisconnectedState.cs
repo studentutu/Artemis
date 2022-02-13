@@ -45,8 +45,8 @@ namespace Artemis.Sample.Core
                 {
                     InstantiatePlayer.Instantiate(
                         response.Nickname,
-                        response.Color.ToUnityColor(),
-                        new Vector2(response.X, response.Y),
+                        response.Color,
+                        response.Position,
                         isLocalPlayer: true);
                 });
             }
