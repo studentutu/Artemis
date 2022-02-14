@@ -84,6 +84,7 @@ namespace Artemis.Sample.Core
             dapperClient._client = new ArtemisClient(Array.Empty<Handler>());
             dapperClient._client.Start();
             dapperClient.ServerAddress = Address.FromHostname(serverHostname, Configuration.ServerPort);
+            dapperClient._client.RegisterHandler(new SnapshotMessageHandler());
             dapperClient._client.RegisterHandler(new PlayerJoinedMessageHandler());
             dapperClient._client.RegisterHandler(new ClientDisconnectionMessageHandler());
         }

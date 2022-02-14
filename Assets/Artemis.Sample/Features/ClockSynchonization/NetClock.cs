@@ -24,7 +24,7 @@ public class NetClock : MonoBehaviour
         var latency = roundTripTime / 2f;
         var serverTimeNow = response.Time + latency;
         _offset = serverTimeNow - DateTime.Now;
-        _offset = _offset.Add(TimeSpan.FromMilliseconds(16)); // TODO How much the client must be ahead of server?
+        _offset = _offset.Add(latency + TimeSpan.FromMilliseconds(16)); // TODO How much the client must be ahead of server?
         dapperClient.ServerTimeAtFirstTick = response.TimeAtFirstTick;
     }
 
