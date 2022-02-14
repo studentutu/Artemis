@@ -16,17 +16,16 @@ namespace Artemis.Sample.Core
             Debug.Log("OnClientConnectedStateEntered");
             _netClock = Object.FindObjectOfType<NetClock>();
             dapperClient._client.RegisterHandler(new ServerClosingMessageHandler(() => Disconnect(dapperClient))); // TODO I didn't very liked this, its leaking ClientConnectedState behaviour
-            _gameLoopThread = new Thread(() => ServerLoop(dapperClient));
+            _gameLoopThread = new Thread(() => ClientLoop(dapperClient));
             _gameLoopThread.Start();
         }
         
-        private void ServerLoop(DapperClient dapperClient)
+        private void ClientLoop(DapperClient dapperClient)
         {
             while (true)
             {
                 var elapsed = (_netClock.PredictServerTime() - dapperClient.ServerTimeAtFirstTick).TotalSeconds;
                 dapperClient.Tick = (int) (elapsed * Configuration.TicksPerSecond);
-                Thread.Sleep(Configuration.TickInterval / 4);
             }
         }
 

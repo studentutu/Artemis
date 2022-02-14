@@ -61,6 +61,8 @@ namespace Artemis.Sample.Core
                         response.PlayerData.Color,
                         response.PlayerData.Position,
                         isLocalPlayer: true);
+
+                    dapperClient.LocalPlayer = Object.FindObjectOfType<LocalPlayer>();
                 });
                 
                 dapperClient.Switch(dapperClient.Connected);

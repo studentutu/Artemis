@@ -11,12 +11,32 @@ public class DapperClient : MonoBehaviour
 
     public Guid PlayerId;
     public DateTime ServerTimeAtFirstTick;
-    public int Tick;
     public string State;
     public AClientState Current;
     public readonly AClientState Disconnected = new ClientDisconnectedState();
     public readonly AClientState Connecting = new ClientConnectingState();
     public readonly AClientState Connected = new ClientConnectedState();
+
+    private int _tick;
+
+    public int Tick
+    {
+        get => _tick;
+        set
+        {
+            if (value != _tick)
+            {
+                _tick = value;
+
+                if (LocalPlayer)
+                {
+                    LocalPlayer.OnNetFixedUpdate(this, value);
+                }
+            }
+        }
+    }
+
+    public LocalPlayer LocalPlayer { get; set; }
 
     private void Start()
     {

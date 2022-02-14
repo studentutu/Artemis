@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Artemis.Clients;
 using Artemis.Sample.Core;
@@ -15,11 +16,47 @@ namespace Artemis.Sample.Server.Core
         public readonly List<(Address, PlayerData)> _players = new();
         public CancellationToken CancellationTokenOnDestroy { get; private set; }
 
-        public int Tick;
         public DateTime TimeAtFirstTick;
         public AServerState Current;
         public readonly AServerState Stopped = new ServerStoppedState();
         public readonly AServerState Running = new ServerRunningState();
+        public readonly InputBuffer InputBuffer = new InputBuffer();
+
+        private int _tick;
+
+        public int Tick
+        {
+            get
+            {
+                return _tick;
+            }
+            set
+            {
+                if (value != _tick)
+                {
+                    Simulate(_tick = value);
+                }
+            }
+        }
+
+        private void Simulate(int tick)
+        {
+            foreach (var tuple in _players)
+            {
+                var command = InputBuffer.Get(tick, tuple.Item1);
+                Debug.Log(command.Horizontal);
+                var axis = Vector2.ClampMagnitude(new Vector2(command.Horizontal, command.Vertical), 1f);
+                tuple.Item2.Position += axis * 0.1f;
+            }
+        }
+
+        private void OnDrawGizmos()
+        {
+            foreach (var p in _players.Select(tuple => new Vector3(tuple.Item2.Position.X, tuple.Item2.Position.Y)))
+            {
+                Gizmos.DrawCube(p, Vector3.one);
+            }
+        }
 
         public void Switch(AServerState state)
         {

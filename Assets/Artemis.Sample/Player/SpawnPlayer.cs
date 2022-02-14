@@ -9,9 +9,12 @@ namespace Artemis.Sample.Player
     {
         public static void Spawn(Guid playerId, string nickname, Color color, Vector2 position, bool isLocalPlayer)
         {
-            var viewPrefab = Resources.LoadAll<PlayerView>(string.Empty).Single();
-            var view = Object.Instantiate(viewPrefab);
-            view.gameObject.name = isLocalPlayer ? $"LocalPlayer ({playerId:N})" : $"RemotePlayer ({playerId:N})";
+            var prefab = isLocalPlayer
+                ? Resources.LoadAll<LocalPlayer>(string.Empty).Single().gameObject
+                : Resources.LoadAll<RemotePlayer>(string.Empty).Single().gameObject;
+            
+            var view = Object.Instantiate(prefab).GetComponentInChildren<PlayerView>();
+            view.gameObject.name = $"{prefab.name} ({playerId:N})";
             view.PlayerId = playerId;
             view.Nickname.text = nickname;
             view.Sprite.color = color;

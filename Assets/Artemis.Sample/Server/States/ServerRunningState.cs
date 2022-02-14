@@ -18,6 +18,7 @@ namespace Artemis.Sample.Server.States
             dapperServer._client.RegisterHandler(new GetTimeRequestHandler(dapperServer));
             dapperServer._client.RegisterHandler(new GetOthersRequestHandler(dapperServer));
             dapperServer._client.RegisterHandler(new ConnectionRequestHandler(dapperServer));
+            dapperServer._client.RegisterHandler(new PlayerCommandMessageHandler(dapperServer));
             dapperServer._client.RegisterHandler(new ClientDisconnectionMessageHandler(dapperServer));
             
             _gameLoopThread = new Thread(() => ServerLoop(dapperServer));
@@ -32,7 +33,6 @@ namespace Artemis.Sample.Server.States
             {
                 var elapsed = (DateTime.UtcNow - dapperServer.TimeAtFirstTick).TotalSeconds;
                 dapperServer.Tick = (int) (elapsed * Configuration.TicksPerSecond);
-                Thread.Sleep(Configuration.TickInterval / 4);
             }
         }
 
