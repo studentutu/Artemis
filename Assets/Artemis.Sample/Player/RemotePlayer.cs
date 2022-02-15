@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class RemotePlayer : BasePlayer
 {
-    public readonly Artemis.Sample.Generics.Memory<Timed<PlayerData>> SnapshotBuffer = new();
+    private readonly Artemis.Sample.Generics.Memory<Timed<PlayerData>> _snapshotBuffer = new();
 
     [SerializeField] private NetClock _netClock;
     [SerializeField] private DapperClient _dapperClient;
@@ -33,14 +33,14 @@ public class RemotePlayer : BasePlayer
     
     private bool TryFindSnapshots(double time, out Timed<PlayerData> prev, out Timed<PlayerData> next)
     {
-        SnapshotBuffer.RemoveExpiredItems();
+        _snapshotBuffer.RemoveExpiredItems();
 
-        for (int i = 0; i < SnapshotBuffer.Count - 1; i++)
+        for (int i = 0; i < _snapshotBuffer.Count - 1; i++)
         {
-            if (SnapshotBuffer[i].Tick < time && time <= SnapshotBuffer[i + 1].Tick)
+            if (_snapshotBuffer[i].Tick < time && time <= _snapshotBuffer[i + 1].Tick)
             {
-                prev = SnapshotBuffer[i];
-                next = SnapshotBuffer[i + 1];
+                prev = _snapshotBuffer[i];
+                next = _snapshotBuffer[i + 1];
                 return true;
             }
         }
@@ -51,6 +51,6 @@ public class RemotePlayer : BasePlayer
 
     public override void OnSnapshotReceived(int tick, PlayerData snapshot)
     {
-        SnapshotBuffer.Add(new Timed<PlayerData>(snapshot, tick), DateTime.Now.AddSeconds(2));
+        _snapshotBuffer.Add(new Timed<PlayerData>(snapshot, tick), DateTime.Now.AddSeconds(2));
     }
 }
