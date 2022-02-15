@@ -30,7 +30,7 @@ public class DapperClient : MonoBehaviour
 
                 if (LocalPlayer)
                 {
-                    LocalPlayer.OnNetFixedUpdate(this, value);
+                    LocalPlayer.OnFixedUpdate(this, value);
                 }
             }
         }

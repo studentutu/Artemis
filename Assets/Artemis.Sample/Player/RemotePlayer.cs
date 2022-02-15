@@ -1,8 +1,9 @@
+using System;
 using Artemis.Sample;
 using Artemis.Sample.Core;
 using UnityEngine;
 
-public class RemotePlayer : Player
+public class RemotePlayer : BasePlayer
 {
     public readonly Artemis.Sample.Generics.Memory<Timed<PlayerData>> SnapshotBuffer = new();
 
@@ -18,20 +19,16 @@ public class RemotePlayer : Player
     private void Update()
     {
         var elapsed = (_netClock.PredictServerTime() - _dapperClient.ServerTimeAtFirstTick).TotalSeconds;
-        var fractionalTickNow = (elapsed * Configuration.TicksPerSecond);
+        var fractionalTickNow = elapsed * Configuration.TicksPerSecond;
         var renderTime = fractionalTickNow - 2; // Interpolation window
 
-        if (TryFindSnapshots(renderTime, out var prev, out var next))
+        if (!TryFindSnapshots(renderTime, out var prev, out var next))
         {
-            var interpolationPercentage = Mathf.InverseLerp(prev.Tick, next.Tick, (float) renderTime);
-            transform.position = Vector2.Lerp(prev.Value.Position, next.Value.Position, interpolationPercentage);
-        }
-        else
-        {
-            Debug.LogError("Snapshot not found");
+            return;
         }
         
-        Debug.Log(fractionalTickNow);
+        var interpolationPercentage = Mathf.InverseLerp(prev.Tick, next.Tick, (float) renderTime);
+        transform.position = Vector2.Lerp(prev.Value.Position, next.Value.Position, interpolationPercentage);
     }
     
     private bool TryFindSnapshots(double time, out Timed<PlayerData> prev, out Timed<PlayerData> next)
@@ -50,5 +47,10 @@ public class RemotePlayer : Player
 
         prev = next = default;
         return false;
+    }
+
+    public override void OnSnapshotReceived(int tick, PlayerData snapshot)
+    {
+        SnapshotBuffer.Add(new Timed<PlayerData>(snapshot, tick), DateTime.Now.AddSeconds(2));
     }
 }

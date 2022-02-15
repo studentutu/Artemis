@@ -8,7 +8,7 @@ namespace Artemis.Sample.Player
         public static Vector2 Move(Vector2 position, PlayerCommand command)
         {
             var input = new Vector2(command.Horizontal, command.Vertical);
-            var motion = Vector2.ClampMagnitude(input, 1f) * 0.1f;
+            var motion = Vector2.ClampMagnitude(input, 1f) * Configuration.PlayerMovementSpeed / Configuration.TicksPerSecond;
             return position + motion;
         }
     }

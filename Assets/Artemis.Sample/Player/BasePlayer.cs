@@ -1,7 +1,8 @@
 using System;
+using Artemis.Sample.Core;
 using UnityEngine;
 
-public class Player : MonoBehaviour
+public abstract class BasePlayer : MonoBehaviour
 {
     public Guid Id;
 
@@ -13,4 +14,6 @@ public class Player : MonoBehaviour
         view.Sprite.color = color;
         view.transform.position = position;
     }
+
+    public abstract void OnSnapshotReceived(int tick, PlayerData snapshot);
 }
