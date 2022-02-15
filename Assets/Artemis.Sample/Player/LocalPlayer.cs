@@ -1,30 +1,37 @@
 using UnityEngine;
 using Artemis.Sample.Packets;
+using Artemis.Sample.Player;
+using Artemis.Threading;
 
 public class LocalPlayer : Player
 {
-    [SerializeField] private int _horizontal;
-    [SerializeField] private int _vertical;
-    
+    private int _vertical;
+    private int _horizontal;
+
     private void Update()
     {
-        var horizontal = (int) Input.GetAxisRaw("Horizontal");
-        if (horizontal != 0)
-        {
-            _horizontal = horizontal;
-        }
-        
         var vertical = (int) Input.GetAxisRaw("Vertical");
-        if (vertical != 0)
-        {
-            _vertical = vertical;
-        }
+        var horizontal = (int) Input.GetAxisRaw("Horizontal");
+
+        if (vertical != 0) _vertical = vertical;
+        if (horizontal != 0) _horizontal = horizontal;
     }
 
     public void OnNetFixedUpdate(DapperClient client, int tick)
     {
-        var playerCommand = new PlayerCommand(tick, _horizontal, _vertical);
-        client._client.SendUnreliableMessage(playerCommand, client.ServerAddress);
-        _horizontal = _vertical = 0;
+        var command = GetCommandForTick(tick);
+        client._client.SendUnreliableMessage(command, client.ServerAddress);
+
+        UnityMainThreadDispatcher.Dispatch(() =>
+        {
+            transform.position = MovePlayer.Move(transform.position, command);
+        });
+    }
+
+    private PlayerCommand GetCommandForTick(int tick)
+    {
+        var command = new PlayerCommand(tick, _horizontal, _vertical);
+        _vertical = _horizontal = 0;
+        return command;
     }
 }
