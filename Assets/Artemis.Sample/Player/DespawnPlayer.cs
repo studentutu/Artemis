@@ -7,8 +7,8 @@ namespace Artemis.Sample.Player
     {
         public static void Despawn(Guid playerId)
         {
-            var views = UnityEngine.Object.FindObjectsOfType<PlayerView>();
-            var view = views.Single(v => v.PlayerId == playerId);
+            var views = UnityEngine.Object.FindObjectsOfType<global::Player>();
+            var view = views.Single(v => v.Id == playerId);
             UnityEngine.Object.Destroy(view.gameObject);
         }
         

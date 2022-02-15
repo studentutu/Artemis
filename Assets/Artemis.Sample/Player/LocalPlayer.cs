@@ -1,7 +1,7 @@
 using UnityEngine;
 using Artemis.Sample.Packets;
 
-public class LocalPlayer : MonoBehaviour
+public class LocalPlayer : Player
 {
     [SerializeField] private int _horizontal;
     [SerializeField] private int _vertical;

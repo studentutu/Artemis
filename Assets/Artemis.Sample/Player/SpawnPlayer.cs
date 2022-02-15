@@ -10,15 +10,12 @@ namespace Artemis.Sample.Player
         public static void Spawn(Guid playerId, string nickname, Color color, Vector2 position, bool isLocalPlayer)
         {
             var prefab = isLocalPlayer
-                ? Resources.LoadAll<LocalPlayer>(string.Empty).Single().gameObject
-                : Resources.LoadAll<RemotePlayer>(string.Empty).Single().gameObject;
+                ? (global::Player) Resources.LoadAll<LocalPlayer>(string.Empty).Single()
+                : (global::Player) Resources.LoadAll<RemotePlayer>(string.Empty).Single();
             
-            var view = Object.Instantiate(prefab).GetComponentInChildren<PlayerView>();
-            view.gameObject.name = $"{prefab.name} ({playerId:N})";
-            view.PlayerId = playerId;
-            view.Nickname.text = nickname;
-            view.Sprite.color = color;
-            view.transform.position = position;
+            var player = Object.Instantiate(prefab).GetComponent<global::Player>();
+            player.Initialize(playerId, nickname, color, position);
+            player.gameObject.name = $"{prefab.name} ({playerId:N})";
         }
     }
 }

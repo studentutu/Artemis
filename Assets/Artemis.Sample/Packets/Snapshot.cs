@@ -11,6 +11,7 @@ namespace Artemis.Sample.Packets
 
         public Snapshot(int tick, PlayerData[] players)
         {
+            Tick = tick;
             Players = players;
         }
     }
