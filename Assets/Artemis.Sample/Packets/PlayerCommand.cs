@@ -1,4 +1,5 @@
 ﻿using System;
+using Artemis.Sample.ValueObjects;
 
 namespace Artemis.Sample.Packets
 {
@@ -6,15 +7,13 @@ namespace Artemis.Sample.Packets
     public class PlayerCommand
     {
         public readonly int Tick;
-        public readonly int Horizontal;
-        public readonly int Vertical;
+        public readonly Int2 Movement;
         [NonSerialized] public DateTime EnqueuedAt;
 
-        public PlayerCommand(int tick, int horizontal, int vertical)
+        public PlayerCommand(int tick, Int2 movement)
         {
             Tick = tick;
-            Horizontal = horizontal;
-            Vertical = vertical;
+            Movement = movement;
         }
     }
 }

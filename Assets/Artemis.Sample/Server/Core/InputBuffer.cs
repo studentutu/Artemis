@@ -32,7 +32,7 @@ namespace Artemis.Sample.Server.Core
                 return playerCommand;
             }
 
-            return new PlayerCommand(tick, default, default);
+            return new PlayerCommand(tick, default);
         }
 
         private void EnsureAddressInsertion(Address address)
