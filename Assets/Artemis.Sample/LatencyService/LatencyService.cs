@@ -38,6 +38,6 @@ public class LatencyService : MonoBehaviour
         var timeAtRequest = DateTime.Now;
         await _dapperClient._client.RequestAsync(_ping, _dapperClient.ServerAddress, _pingTimeout, ct);
         var timeAtResponse = DateTime.Now;
-        return (timeAtResponse - timeAtRequest).Ticks;
+        return (timeAtResponse - timeAtRequest).TotalMilliseconds;
     }
 }

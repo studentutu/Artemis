@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using UnityEngine;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 using Artemis.Extensions;
 using Artemis.Threading;
 using Artemis.ValueObjects;
@@ -30,8 +31,9 @@ namespace Artemis.Clients
             _client.Dispose();
         }
 
-        protected void SendBytes(byte[] bytes, Address recipient)
+        protected async void SendBytes(byte[] bytes, Address recipient)
         {
+            await Task.Delay(100);
             _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
         }
 

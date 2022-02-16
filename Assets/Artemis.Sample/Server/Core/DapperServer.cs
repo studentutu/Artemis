@@ -58,14 +58,6 @@ namespace Artemis.Sample.Server.Core
             }
         }
 
-        private void OnDrawGizmos()
-        {
-            foreach (var p in _players.Select(tuple => new Vector3(tuple.Item2.Position.X, tuple.Item2.Position.Y)))
-            {
-                Gizmos.DrawCube(p, Vector3.one);
-            }
-        }
-
         public void Switch(AServerState state)
         {
             (Current = state).OnStateEntered(this);

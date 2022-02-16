@@ -226,7 +226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a9c5bdb13d86b1547b7c3fc93ac58dbf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _dapperClient: {fileID: 0}
+  _dapperClient: {fileID: 333041562}
   RoundTripTime: 0
 --- !u!1 &1368839381
 GameObject:
