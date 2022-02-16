@@ -19,7 +19,7 @@ public class RemotePlayer : BasePlayer
     private void Update()
     {
         var elapsed = (_netClock.PredictServerTime() - _dapperClient.ServerTimeAtFirstTick).TotalSeconds;
-        var fractionalTickNow = elapsed * Configuration.TicksPerSecond;
+        var fractionalTickNow = elapsed * Configuration.FixedUpdateRate;
         var renderTime = fractionalTickNow - 2; // Interpolation window
 
         if (!TryFindSnapshots(renderTime, out var prev, out var next))

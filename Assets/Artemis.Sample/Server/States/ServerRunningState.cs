@@ -32,7 +32,7 @@ namespace Artemis.Sample.Server.States
             while (true)
             {
                 var elapsed = (DateTime.UtcNow - dapperServer.TimeAtFirstTick).TotalSeconds;
-                dapperServer.Tick = (int) (elapsed * Configuration.TicksPerSecond);
+                dapperServer.Tick = (int) (elapsed * Configuration.FixedUpdateRate);
             }
         }
 

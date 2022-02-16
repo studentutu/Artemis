@@ -25,7 +25,7 @@ namespace Artemis.Sample.Core
             while (true)
             {
                 var elapsed = (_netClock.PredictServerTime() - dapperClient.ServerTimeAtFirstTick).TotalSeconds;
-                dapperClient.Tick = (int) (elapsed * Configuration.TicksPerSecond);
+                dapperClient.Tick = (int) (elapsed * Configuration.FixedUpdateRate);
             }
         }
 

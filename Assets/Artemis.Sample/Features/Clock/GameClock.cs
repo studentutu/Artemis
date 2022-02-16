@@ -15,10 +15,10 @@ public class GameClock
     {
         _span = _span.Add(deltaTime);
         
-        while (_span > Configuration.TickInterval)
+        while (_span > Configuration.FixedDeltaTime)
         {
             _tick.Invoke();
-            _span = _span.Subtract(Configuration.TickInterval);
+            _span = _span.Subtract(Configuration.FixedDeltaTime);
         }
     }
 }
