@@ -20,6 +20,5 @@ public class LocalPlayer : BasePlayer
     {
         _predictedLocalPlayer.OnSnapshotReceived(tick, snapshot);
         _unpredictedLocalPlayer.OnSnapshotReceived(tick, snapshot);
-        
     }
 }

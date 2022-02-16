@@ -19,6 +19,11 @@ namespace Artemis.Sample.ValueObjects
         {
             return new Vector2(float2.X, float2.Y);
         }
+        
+        public static implicit operator Vector3(Float2 float2)
+        {
+            return new Vector2(float2.X, float2.Y);
+        }
 
         public static implicit operator Float2(Vector2 vector2)
         {

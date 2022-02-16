@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Artemis.Sample;
 using Artemis.Sample.Core;
@@ -8,17 +9,18 @@ using UnityEngine;
 
 public class PredictedLocalPlayer : MonoBehaviour
 {
-    private int _lastPredictedTick = -1;
     private readonly List<PlayerCommand> _unconfirmedCommands = new();
+    
+    private readonly Artemis.Sample.Generics.Memory<Timed<Vector2>> _predictionBuffer = new();
 
     public void OnCommandSent(PlayerCommand command)
     {
-        _lastPredictedTick = command.Tick;
         _unconfirmedCommands.Add(command);
 
         UnityMainThreadDispatcher.Dispatch(() =>
         {
             transform.position = MovePlayer.Move(transform.position, command, Configuration.FixedDeltaTime);
+            _predictionBuffer.Add(new Timed<Vector2>(transform.position, command.Tick), DateTime.Now.AddSeconds(2));
         });
     }
 
@@ -38,8 +40,19 @@ public class PredictedLocalPlayer : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireCube(transform.position, Vector3.one * 0.2f);
-        UnityEditor.Handles.Label(transform.position, $"F{_lastPredictedTick}");
+        _predictionBuffer.RemoveExpiredItems();
+            
+        foreach (var snapshot in _predictionBuffer)
+        {
+            DrawPrediction(snapshot);
+        }
+    }
+
+    private void DrawPrediction(Timed<Vector2> prediction)
+    {
+        Gizmos.color = GUI.color = Color.red;
+        Gizmos.DrawWireCube(prediction.Value, Vector2.one * 0.2f);
+        var style = new GUIStyle("label") {fontStyle = FontStyle.Bold};
+        UnityEditor.Handles.Label(prediction.Value, $"F{prediction.Tick}", style);
     }
 }

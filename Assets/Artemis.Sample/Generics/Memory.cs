@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Artemis.Sample.Generics
 {
-    public class Memory<T>
+    public class Memory<T> : IEnumerable<T>
     {
         private readonly List<T> _items = new();
         private readonly List<DateTime> _expiration = new();
@@ -26,6 +27,16 @@ namespace Artemis.Sample.Generics
                     _expiration.RemoveAt(i);
                 }
             }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return _items.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }
