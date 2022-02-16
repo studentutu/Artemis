@@ -32,6 +32,7 @@ namespace Artemis.Sample.Server.Core
                 return playerCommand;
             }
 
+            Debug.LogError($"Returning default command for frame {tick}");
             return new PlayerCommand(tick, default);
         }
 
