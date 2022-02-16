@@ -152,7 +152,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 83e7698edffad7749893d8a2613c55df, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Tick: 0
 --- !u!4 &176943530
 Transform:
   m_ObjectHideFlags: 0
@@ -198,7 +197,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bf571b4c31718f84ab9f74220620d758, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Tick: 0
   State: 
 --- !u!4 &333041563
 Transform:

@@ -1,4 +1,7 @@
+using System;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 public static class Keyboard
 {
@@ -38,8 +41,46 @@ public static class Keyboard
 
     public static bool GetKey(Key key)
     {
-        return GetKeyState(key) < 0;
+        if (ApplicationIsActivated())
+        {
+            return GetKeyState(key) < 0;
+        }
+
+        return false;
     }
+    
+    public static int GetAxis(Key positive, Key negative)
+    {
+        if (GetKey(positive))
+        {
+            return +1;
+        }
+
+        if (GetKey(negative))
+        {
+            return -1;
+        }
+
+        return 0;
+    }
+    
+    public static bool ApplicationIsActivated()
+    {
+        var activatedHandle = GetForegroundWindow();
+        if (activatedHandle == IntPtr.Zero) {
+            return false;       // No window is currently activated
+        }
+
+        GetWindowThreadProcessId(activatedHandle, out var activeProcId);
+        return activeProcId == Process.GetCurrentProcess().Id;
+    }
+
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, ExactSpelling = true)]
+    private static extern IntPtr GetForegroundWindow();
+
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    private static extern int GetWindowThreadProcessId(IntPtr handle, out int processId);
 
     [DllImport("user32.dll")] private static extern short GetKeyState(Key key);
 }

@@ -8,9 +8,6 @@ using Artemis.Threading;
 
 public class LocalPlayer : BasePlayer
 {
-    private int _vertical;
-    private int _horizontal;
-
     public int UnconfirmedCommandCount;
 
     private readonly List<PlayerCommand> _unconfirmedCommands = new();
@@ -18,20 +15,14 @@ public class LocalPlayer : BasePlayer
     private void Update()
     {
         UnconfirmedCommandCount = _unconfirmedCommands.Count;
-        
-        var vertical = (int) Input.GetAxisRaw("Vertical");
-        var horizontal = (int) Input.GetAxisRaw("Horizontal");
-
-        if (vertical != 0) _vertical = vertical;
-        if (horizontal != 0) _horizontal = horizontal;
-        
-        // Render
         Predict();
     }
 
     private void Predict()
     {
-        var input = new Vector2(_horizontal, _vertical);
+        var horizontal = Keyboard.GetAxis(Keyboard.Key.D, Keyboard.Key.A);
+        var vertical = Keyboard.GetAxis(Keyboard.Key.W, Keyboard.Key.S);
+        var input = new Vector2(horizontal, vertical);
         var motion = Vector2.ClampMagnitude(input, 1f) * Configuration.PlayerMovementSpeed * Time.deltaTime;
         transform.Translate(motion);
     }
@@ -43,11 +34,11 @@ public class LocalPlayer : BasePlayer
         _unconfirmedCommands.Add(command);
     }
 
-    private PlayerCommand GetCommandForTick(int tick)
+    private static PlayerCommand GetCommandForTick(int tick)
     {
-        var command = new PlayerCommand(tick, _horizontal, _vertical);
-        _vertical = _horizontal = 0;
-        return command;
+        var horizontal = Keyboard.GetAxis(Keyboard.Key.D, Keyboard.Key.A);
+        var vertical = Keyboard.GetAxis(Keyboard.Key.W, Keyboard.Key.S);
+        return new PlayerCommand(tick, horizontal, vertical);
     }
 
     public override void OnSnapshotReceived(int tick, PlayerData snapshot)
