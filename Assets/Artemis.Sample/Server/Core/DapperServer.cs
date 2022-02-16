@@ -47,7 +47,7 @@ namespace Artemis.Sample.Server.Core
             foreach (var (address, player) in _players)
             {
                 var command = InputBuffer.Get(tick, address);
-                player.Position = MovePlayer.Move(player.Position, command);
+                player.Position = MovePlayer.Move(player.Position, command, Configuration.TickInterval);
             }
 
             // Broadcast frame snapshot
