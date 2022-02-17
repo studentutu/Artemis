@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using System.Threading;
 using Artemis.Exceptions;
@@ -5,6 +6,7 @@ using Artemis.Packets;
 using Artemis.Settings;
 using Artemis.ValueObjects;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace Artemis.Clients
 {
@@ -96,22 +98,43 @@ namespace Artemis.Clients
 
         private void HandlePacket(Message message, Address sender)
         {
-            var expectedSequence = _incomingSequenceStorage.Get(sender, message.DeliveryMethod, 0) + 1;
-
-            var isDuplicateOrOutOfOrder = message.Sequence != expectedSequence;
-
-            if (isDuplicateOrOutOfOrder)
+            switch (message.DeliveryMethod)
             {
-                //Debug.LogWarning($"Discarding reliable packet #{message.Sequence} with {message.Payload.GetType().Name} as expected sequence is #{expectedSequence}");
-                return;
+                case DeliveryMethod.Reliable: HandleRealiablePacket(message, sender); break;
+                case DeliveryMethod.Unreliable: HandleUnrealiablePacket(message, sender); break;
+                default: throw new ArgumentOutOfRangeException(message.DeliveryMethod.ToString());
             }
+        }
+        
+        private void HandleUnrealiablePacket(Message message, Address sender)
+        {
+            Assert.IsTrue(message.DeliveryMethod == DeliveryMethod.Unreliable);
+            var lastReceivedSequence = _incomingSequenceStorage.Get(sender, DeliveryMethod.Unreliable, 0);
+            var isOrdered = message.Sequence > lastReceivedSequence;
 
-            if (message.DeliveryMethod == DeliveryMethod.Reliable)
+            if (!isOrdered)
             {
-                SendObject(new Ack {Sequence = message.Sequence}, sender);
+                Debug.LogWarning("Discarding out of order unreliable message");
+                return; // Discard because is duplicate or out of order
             }
+            
+            _incomingSequenceStorage.Set(sender, DeliveryMethod.Unreliable, message.Sequence);
+            HandleMessage(message, sender);
+        }
 
-            _incomingSequenceStorage.Set(sender, message.DeliveryMethod, message.Sequence);
+        private void HandleRealiablePacket(Message message, Address sender)
+        {
+            Assert.IsTrue(message.DeliveryMethod == DeliveryMethod.Reliable);
+            var expectedSequence = _incomingSequenceStorage.Get(sender, DeliveryMethod.Reliable, 0) + 1;
+            var isSequenced = message.Sequence == expectedSequence;
+
+            if (!isSequenced)
+            {
+                return; // Discard because is duplicate or out of sequence
+            }
+            
+            SendObject(new Ack {Sequence = message.Sequence}, sender);
+            _incomingSequenceStorage.Set(sender, DeliveryMethod.Reliable, message.Sequence);
             HandleMessage(message, sender);
         }
 
