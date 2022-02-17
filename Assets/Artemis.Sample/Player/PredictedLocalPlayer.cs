@@ -34,11 +34,13 @@ public class PredictedLocalPlayer : MonoBehaviour
         UnityMainThreadDispatcher.Dispatch(() =>
         {
             _unconfirmedCommands.RemoveAll(unconfirmedCommand => tick >= unconfirmedCommand.Tick);
-            transform.position = new Vector2(snapshot.Position.X, snapshot.Position.Y);
 
-            foreach (var unconfirmedCommand in _unconfirmedCommands)
+            _predictionBuffer.Clear();
+            transform.position = new Vector2(snapshot.Position.X, snapshot.Position.Y);
+            foreach (var command in _unconfirmedCommands)
             {
-                transform.position = MovePlayer.Move(transform.position, unconfirmedCommand, Configuration.FixedDeltaTime);
+                transform.position = MovePlayer.Move(transform.position, command, Configuration.FixedDeltaTime);
+                _predictionBuffer.Add(new Timed<Vector2>(transform.position, command.Tick), DateTime.Now.AddSeconds(2));
             }
         });
     }

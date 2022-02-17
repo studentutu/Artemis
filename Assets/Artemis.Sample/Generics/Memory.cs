@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Artemis.Sample.Generics
 {
@@ -37,6 +38,12 @@ namespace Artemis.Sample.Generics
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public void Clear()
+        {
+            _items.Clear();
+            _expiration.Clear();
         }
     }
 }
