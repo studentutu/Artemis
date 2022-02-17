@@ -13,6 +13,11 @@ public class PredictedLocalPlayer : MonoBehaviour
     
     private readonly Artemis.Sample.Generics.Memory<Timed<Vector2>> _predictionBuffer = new();
 
+    private void Start()
+    {
+        FindObjectOfType<CameraFollow>().Target = transform;
+    }
+    
     public void OnCommandSent(PlayerCommand command)
     {
         _unconfirmedCommands.Add(command);

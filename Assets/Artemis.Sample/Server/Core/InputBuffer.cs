@@ -12,6 +12,8 @@ namespace Artemis.Sample.Server.Core
     {
         private readonly Dictionary<Address, List<PlayerCommand>> _registry = new();
 
+        private readonly Dictionary<Address, PlayerCommand> _lastConsumedCommand = new();
+
         public void Enqueue(Message<PlayerCommand> message)
         {
             EnsureAddressInsertion(message.Sender);
@@ -29,9 +31,16 @@ namespace Artemis.Sample.Server.Core
                 var sittingFor = DateTime.UtcNow - playerCommand.EnqueuedAt;
                 Debug.LogWarning($"Input {tick} was consumed after sitting on buffer for {sittingFor.TotalMilliseconds}ms");
                 _registry[owner].Remove(playerCommand);
+                _lastConsumedCommand[owner] = playerCommand;
                 return playerCommand;
             }
 
+            if (_lastConsumedCommand[owner] != default)
+            {
+                return _lastConsumedCommand[owner];
+            }
+
+            Debug.LogError("Returning default command!");
             return new PlayerCommand(tick, default);
         }
 
@@ -40,6 +49,11 @@ namespace Artemis.Sample.Server.Core
             if (!_registry.ContainsKey(address))
             {
                 _registry.Add(address, new List<PlayerCommand>());
+            }
+
+            if (!_lastConsumedCommand.ContainsKey(address))
+            {
+                _lastConsumedCommand.Add(address, null);
             }
         }
     }
