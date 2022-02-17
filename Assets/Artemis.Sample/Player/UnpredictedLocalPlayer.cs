@@ -11,7 +11,7 @@ namespace Artemis.Sample.Player
 
         public void OnSnapshotReceived(int tick, PlayerData snapshot)
         {
-            _snapshotBuffer.Add(new Timed<PlayerData>(snapshot, tick), DateTime.Now.AddSeconds(2));
+            _snapshotBuffer.Add(new Timed<PlayerData>(snapshot, tick), DateTime.Now.AddSeconds(1));
 
             UnityMainThreadDispatcher.Dispatch(() =>
             {

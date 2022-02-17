@@ -22,7 +22,8 @@ namespace Artemis.Sample.Server.Handlers
 
         public void Handle(Request<ConnectionRequest> request)
         {
-            var position = new Float2(Dice.RollRange(-1f, +1f), Dice.RollRange(-1f, +1f));
+            //var position = new Float2(Dice.RollRange(-1f, +1f), Dice.RollRange(-1f, +1f));
+            var position = new Float2(0, 0);
             var hsv = Color.FromHSV(Dice.RollRange(0f, 1f), 1, 1);
             var playerData = new PlayerData(Guid.NewGuid(), request.Payload.Nickname, hsv, position);
             BroadcastPlayerJoinedNotification(playerData);

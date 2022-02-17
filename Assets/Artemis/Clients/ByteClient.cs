@@ -35,7 +35,7 @@ namespace Artemis.Clients
         protected async void SendBytes(byte[] bytes, Address recipient)
         {
             // Loss simulation
-            const double lossProbability = 0.1;
+            const double lossProbability = 0.2;
             if (Probability.Chance(lossProbability))
             {
                 return;

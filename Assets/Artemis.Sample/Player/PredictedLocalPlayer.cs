@@ -15,6 +15,7 @@ public class PredictedLocalPlayer : MonoBehaviour
 
     private void Start()
     {
+        Application.targetFrameRate = 60;
         FindObjectOfType<CameraFollow>().Target = transform;
     }
     
@@ -25,7 +26,7 @@ public class PredictedLocalPlayer : MonoBehaviour
         UnityMainThreadDispatcher.Dispatch(() =>
         {
             transform.position = MovePlayer.Move(transform.position, command, Configuration.FixedDeltaTime);
-            _predictionBuffer.Add(new Timed<Vector2>(transform.position, command.Tick), DateTime.Now.AddSeconds(2));
+            _predictionBuffer.Add(new Timed<Vector2>(transform.position, command.Tick), DateTime.Now.AddSeconds(1));
         });
     }
 
@@ -33,14 +34,22 @@ public class PredictedLocalPlayer : MonoBehaviour
     {
         UnityMainThreadDispatcher.Dispatch(() =>
         {
+            var positionBeforePreditionBufferRebuild = transform.position;
             _unconfirmedCommands.RemoveAll(unconfirmedCommand => tick >= unconfirmedCommand.Tick);
-
             _predictionBuffer.Clear();
             transform.position = new Vector2(snapshot.Position.X, snapshot.Position.Y);
             foreach (var command in _unconfirmedCommands)
             {
                 transform.position = MovePlayer.Move(transform.position, command, Configuration.FixedDeltaTime);
                 _predictionBuffer.Add(new Timed<Vector2>(transform.position, command.Tick), DateTime.Now.AddSeconds(2));
+            }
+            var positionAfterPreditionBufferRebuild = transform.position;
+
+            var distance = Vector3.Distance(positionBeforePreditionBufferRebuild, positionAfterPreditionBufferRebuild);
+
+            if (distance > 0.01f)
+            {
+                Debug.LogError("Misprediction");
             }
         });
     }

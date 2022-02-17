@@ -14,6 +14,6 @@ public class CameraFollow : MonoBehaviour
         var currentPosition = (Vector2) transform.position;
         var desiredPosition = (Vector2) Target.position;
 
-        transform.position = Vector2.Lerp(currentPosition, desiredPosition, Time.deltaTime * 8);
+        transform.position = Vector2.Lerp(currentPosition, desiredPosition, Time.deltaTime * 32);
     }
 }
