@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using Artemis.Extensions;
 using Artemis.Threading;
+using Artemis.Utilities;
 using Artemis.ValueObjects;
 
 namespace Artemis.Clients
@@ -33,7 +34,18 @@ namespace Artemis.Clients
 
         protected async void SendBytes(byte[] bytes, Address recipient)
         {
+            // Loss simulation
+            const double lossProbability = 0.1;
+            if (Probability.Chance(lossProbability))
+            {
+                Debug.LogError("Loss!");
+                return;
+            }
+            
+            // Latency simulation
             await Task.Delay(100);
+            
+            // Normal flow
             _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
         }
 
