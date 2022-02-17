@@ -38,7 +38,6 @@ namespace Artemis.Clients
             const double lossProbability = 0.1;
             if (Probability.Chance(lossProbability))
             {
-                Debug.LogError("Loss!");
                 return;
             }
             
@@ -46,7 +45,13 @@ namespace Artemis.Clients
             await Task.Delay(100);
             
             // Normal flow
-            _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
+            try
+            {
+                _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
+            }
+            catch (ObjectDisposedException)
+            {
+            }
         }
 
         protected virtual void HandleBytes(byte[] bytes, Address sender)

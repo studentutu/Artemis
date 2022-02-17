@@ -1,7 +1,7 @@
-﻿using System.Linq;
-using Artemis.Sample.Packets;
+﻿using Artemis.Sample.Extensions;
 using Artemis.Threading;
 using Artemis.UserInterface;
+using Artemis.Sample.Packets;
 using Object = UnityEngine.Object;
 
 namespace Artemis.Sample.Client.Handlers
@@ -13,11 +13,13 @@ namespace Artemis.Sample.Client.Handlers
             UnityMainThreadDispatcher.Dispatch(() =>
             {
                 var players = Object.FindObjectsOfType<BasePlayer>();
-                
+
                 foreach (var playerData in message.Payload.Players)
                 {
-                    var player = players.Single(rp => rp.Id == playerData.Id);
-                    player.OnSnapshotReceived(message.Payload.Tick, playerData);
+                    if (players.TryFind(p => p.Id == playerData.Id, out var player))
+                    {
+                        player.OnSnapshotReceived(message.Payload.Tick, playerData);
+                    }
                 }
             });
         }
