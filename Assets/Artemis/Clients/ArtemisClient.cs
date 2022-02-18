@@ -52,7 +52,6 @@ namespace Artemis.Clients
 
         protected override void HandleMessage(Message message, Address sender)
         {
-            
             switch (message.Payload)
             {
                 case Request request:

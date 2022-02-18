@@ -47,7 +47,7 @@ public class PredictedLocalPlayer : MonoBehaviour
 
             var distance = Vector3.Distance(positionBeforePreditionBufferRebuild, positionAfterPreditionBufferRebuild);
 
-            if (distance > 0.01f)
+            if (distance > 0.001f)
             {
                 Debug.LogError("Misprediction");
             }

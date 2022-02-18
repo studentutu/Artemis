@@ -37,6 +37,7 @@ namespace Artemis.Sample.Server.Core
 
             if (_lastConsumedCommand[owner] != default)
             {
+                Debug.LogError("Returning last command!");
                 return _lastConsumedCommand[owner];
             }
 
