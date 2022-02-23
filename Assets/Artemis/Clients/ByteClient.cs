@@ -2,10 +2,7 @@ using System;
 using System.Net;
 using UnityEngine;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Artemis.Extensions;
-using Artemis.Threading;
-using Artemis.Utilities;
 using Artemis.ValueObjects;
 
 namespace Artemis.Clients
@@ -32,26 +29,9 @@ namespace Artemis.Clients
             _client.Dispose();
         }
 
-        protected async void SendBytes(byte[] bytes, Address recipient)
+        protected void SendBytes(byte[] bytes, Address recipient)
         {
-            // Loss simulation
-            const double lossProbability = 0.2;
-            if (Probability.Chance(lossProbability))
-            {
-                return;
-            }
-            
-            // Latency simulation
-            await Task.Delay(100);
-            
-            // Normal flow
-            try
-            {
-                _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
-            }
-            catch (ObjectDisposedException)
-            {
-            }
+            _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
         }
 
         protected virtual void HandleBytes(byte[] bytes, Address sender)
