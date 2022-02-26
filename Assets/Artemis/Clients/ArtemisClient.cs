@@ -16,12 +16,8 @@ namespace Artemis.Clients
         private readonly Dictionary<Type, Action<Message, Address>> _messageHandlers = new();
         private readonly Dictionary<Type, Action<Request, Address>> _requestHandlers = new();
 
-        public ArtemisClient(IEnumerable<Handler> handlers, int port = 0) : base(port)
+        public ArtemisClient(int port = 0) : base(port)
         {
-            foreach (var handler in handlers)
-            {
-                handler.Bind(this);
-            }
         }
 
         public void RegisterHandler<T>(IRequestHandler<T> handler)
