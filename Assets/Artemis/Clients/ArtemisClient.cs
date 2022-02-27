@@ -102,15 +102,15 @@ namespace Artemis.Clients
             }
         }
 
-        public async Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
         {
-            return await RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
+            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
         }
 
-        public async Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
         {
-            using var timeoutCts = new CancellationTokenSource(timeout);
-            using var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
+            var timeoutCts = new CancellationTokenSource(timeout);
+            var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
 
             var request = new Request(obj);
             var tcs = new TaskCompletionSource<object>();
@@ -118,7 +118,14 @@ namespace Artemis.Clients
             SendReliableMessage(request, recepient, globalCts.Token);
             globalCts.Token.Register(() => CancelRequest(tcs, request));
 
-            return await tcs.Task;
+            object DisposeAndReturn(Task<object> task)
+            {
+                timeoutCts.Dispose();
+                globalCts.Dispose();
+                return task.Result;
+            }
+
+            return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
         }
 
         private void CancelRequest(TaskCompletionSource<object> tcs, Request request)
