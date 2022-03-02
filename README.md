@@ -3,7 +3,7 @@
 
 # Artemis
 ### A layered rUDP client for Unity
-  Artemis is an extension on top of the User Datagram Protocol (UDP), adding a layer of reliability in the delivery of packets when required.
+  Artemis is an extension on top of the User Datagram Protocol (UDP), adding a layer of reliability (ARQ) in the delivery of packets when required.
 </div>
 
 <div align=center>
