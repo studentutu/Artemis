@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Packets;
@@ -13,8 +14,8 @@ namespace Artemis.Clients
     public class ArtemisClient : ReliableClient
     {
         private readonly Dictionary<Guid, TaskCompletionSource<object>> _responses = new();
-        private readonly Dictionary<Type, Action<Message, Address>> _messageHandlers = new();
-        private readonly Dictionary<Type, Action<Request, Address>> _requestHandlers = new();
+        private readonly Dictionary<Type, Action<Message, IPEndPoint>> _messageHandlers = new();
+        private readonly Dictionary<Type, Action<Request, IPEndPoint>> _requestHandlers = new();
 
         public ArtemisClient(int port = 0) : base(port)
         {
@@ -46,7 +47,7 @@ namespace Artemis.Clients
             });
         }
 
-        protected override void HandleMessage(Message message, Address sender)
+        protected override void HandleMessage(Message message, IPEndPoint sender)
         {
             switch (message.Payload)
             {
@@ -65,7 +66,7 @@ namespace Artemis.Clients
             }
         }
         
-        private void HandleUserMessage(Message message, Address sender)
+        private void HandleUserMessage(Message message, IPEndPoint sender)
         {
             if (_messageHandlers.TryGetValue(message.Payload.GetType(), out var handler))
             {
@@ -77,7 +78,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleRequest(Request request, Address sender)
+        protected virtual void HandleRequest(Request request, IPEndPoint sender)
         {
             if (_requestHandlers.TryGetValue(request.Payload.GetType(), out var handler))
             {
@@ -89,7 +90,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleResponse(Response response, Address sender)
+        protected virtual void HandleResponse(Response response, IPEndPoint sender)
         {
             if (_responses.Remove(response.Id, out var tcs))
             {
@@ -102,12 +103,12 @@ namespace Artemis.Clients
             }
         }
 
-        public Task<object> RequestAsync<T>(T obj, Address recepient, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken ct = default)
         {
             return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
         }
 
-        public Task<object> RequestAsync<T>(T obj, Address recepient, TimeSpan timeout, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, TimeSpan timeout, CancellationToken ct = default)
         {
             var timeoutCts = new CancellationTokenSource(timeout);
             var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);

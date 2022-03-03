@@ -1,8 +1,8 @@
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Artemis.Clients;
-using Artemis.ValueObjects;
 using UnityEngine;
 
 namespace Artemis.Samples.PingPong
@@ -12,7 +12,7 @@ namespace Artemis.Samples.PingPong
         [Header("Readonly"), SerializeField] private string _roundTripTime = "Uninitialized";
 
         private ArtemisClient _client;
-        private readonly Address _serverAddress = Address.FromHostname("localhost", Configuration.ServerPort);
+        private readonly IPEndPoint _serverAddress = new(IPAddress.Loopback, Configuration.ServerPort);
         private readonly CancellationTokenSource _cts = new();
 
         private void Start()

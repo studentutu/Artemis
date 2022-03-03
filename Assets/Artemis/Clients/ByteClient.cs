@@ -3,15 +3,16 @@ using System.Net;
 using UnityEngine;
 using System.Net.Sockets;
 using Artemis.Extensions;
-using Artemis.ValueObjects;
 
 namespace Artemis.Clients
 {
     public class ByteClient : IDisposable
     {
         private readonly UdpClient _client;
+        private IPEndPoint _sender = new IPEndPoint(IPAddress.Any, default);
 
         public int Port => ((IPEndPoint) _client.Client.LocalEndPoint).Port;
+        public IPEndPoint DefaultRemote => (IPEndPoint) _client.Client.RemoteEndPoint;
 
         protected ByteClient(int port = 0)
         {
@@ -29,12 +30,12 @@ namespace Artemis.Clients
             _client.Dispose();
         }
 
-        protected void SendBytes(byte[] bytes, Address recipient)
+        protected void SendBytes(byte[] bytes, IPEndPoint recipient)
         {
-            _client.Send(bytes, bytes.Length, recipient.Ip, recipient.Port);
+            _client.Send(bytes, bytes.Length, recipient);
         }
 
-        protected virtual void HandleBytes(byte[] bytes, Address sender)
+        protected virtual void HandleBytes(byte[] bytes, IPEndPoint sender)
         {
             // Debug.Log($"{nameof(ByteClient)} received {bytes.Length} bytes from {sender}");
         }
@@ -43,10 +44,8 @@ namespace Artemis.Clients
         {
             try
             {
-                var sender = new IPEndPoint(IPAddress.Any, default);
-                var bytes = _client.EndReceive(ar, ref sender);
-                //UnityMainThreadDispatcher.Dispatch(() => HandleBytes(bytes, Address.FromIPEndPoint(sender)));
-                HandleBytes(bytes, Address.FromIPEndPoint(sender));
+                var bytes = _client.EndReceive(ar, ref _sender);
+                HandleBytes(bytes, _sender.Copy());
                 _client.BeginReceive(Receive, _client);
             }
             catch (Exception e) when (e.GetType() != typeof(ObjectDisposedException))

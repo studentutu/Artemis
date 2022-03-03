@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using Artemis.Exceptions;
 using Artemis.Packets;
@@ -34,25 +35,25 @@ namespace Artemis.Clients
             base.Dispose();
         }
 
-        private Message EncapsulatePayloadInsideAMessage<T>(T payload, Address recipient, DeliveryMethod deliveryMethod)
+        private Message EncapsulatePayloadInsideAMessage<T>(T payload, IPEndPoint recipient, DeliveryMethod deliveryMethod)
         {
             var sequence = _outgoingSequenceStorage.Get(recipient, deliveryMethod, 0) + 1;
             return new Message(sequence, payload, deliveryMethod);
         }
 
-        private void SendMessage(Message message, Address recipient)
+        private void SendMessage(Message message, IPEndPoint recipient)
         {
             _outgoingSequenceStorage.Set(recipient, message.DeliveryMethod, message.Sequence);
             SendObject(message, recipient);
         }
 
-        public void SendUnreliableMessage<T>(T payload, Address recipient)
+        public void SendUnreliableMessage<T>(T payload, IPEndPoint recipient)
         {
             var message = EncapsulatePayloadInsideAMessage(payload, recipient, DeliveryMethod.Unreliable);
             SendMessage(message, recipient);
         }
 
-        public void SendReliableMessage<T>(T payload, Address recipient, CancellationToken ct = default)
+        public void SendReliableMessage<T>(T payload, IPEndPoint recipient, CancellationToken ct = default)
         {
             var message = EncapsulatePayloadInsideAMessage(payload, recipient, DeliveryMethod.Reliable);
             SendMessage(message, recipient);
@@ -91,12 +92,12 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleMessage(Message message, Address sender)
+        protected virtual void HandleMessage(Message message, IPEndPoint sender)
         {
             Debug.Log($"Received message containing {message.Payload.GetType().FullName} from {sender}");
         }
 
-        private void HandlePacket(Message message, Address sender)
+        private void HandlePacket(Message message, IPEndPoint sender)
         {
             switch (message.DeliveryMethod)
             {
@@ -106,7 +107,7 @@ namespace Artemis.Clients
             }
         }
         
-        private void HandleUnrealiablePacket(Message message, Address sender)
+        private void HandleUnrealiablePacket(Message message, IPEndPoint sender)
         {
             Assert.IsTrue(message.DeliveryMethod == DeliveryMethod.Unreliable);
             var lastReceivedSequence = _incomingSequenceStorage.Get(sender, DeliveryMethod.Unreliable, 0);
@@ -122,7 +123,7 @@ namespace Artemis.Clients
             HandleMessage(message, sender);
         }
 
-        private void HandleRealiablePacket(Message message, Address sender)
+        private void HandleRealiablePacket(Message message, IPEndPoint sender)
         {
             Assert.IsTrue(message.DeliveryMethod == DeliveryMethod.Reliable);
             var expectedSequence = _incomingSequenceStorage.Get(sender, DeliveryMethod.Reliable, 0) + 1;
@@ -138,7 +139,7 @@ namespace Artemis.Clients
             HandleMessage(message, sender);
         }
 
-        private void HandleAcknowledgement(Ack ack, Address sender)
+        private void HandleAcknowledgement(Ack ack, IPEndPoint sender)
         {
             lock (_retransmissionQueue)
             {
@@ -146,7 +147,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected override void HandleObject(object obj, Address sender)
+        protected override void HandleObject(object obj, IPEndPoint sender)
         {
             base.HandleObject(obj, sender);
 

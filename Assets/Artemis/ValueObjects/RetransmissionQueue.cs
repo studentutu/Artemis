@@ -2,31 +2,32 @@
 using Artemis.Packets;
 using Artemis.Extensions;
 using System.Collections.Generic;
+using System.Net;
 
 namespace Artemis.ValueObjects
 {
     internal class RetransmissionQueue
     {
-        private readonly List<Address> _list = new();
-        private readonly Dictionary<Address, List<Message>> _dictionary = new();
+        private readonly List<IPEndPoint> _list = new();
+        private readonly Dictionary<IPEndPoint, List<Message>> _dictionary = new();
 
-        internal IEnumerable<(Address, List<Message>)> Get()
+        internal IEnumerable<(IPEndPoint, List<Message>)> Get()
         {
             return _list.Select(address => (address, _dictionary[address]));
         }
 
-        internal void Add(Address recipient, Message message)
+        internal void Add(IPEndPoint recipient, Message message)
         {
             EnsureAddressInsertion(recipient);
             _dictionary[recipient].Add(message);
         }
 
-        internal void Remove(Address recipient, int sequence)
+        internal void Remove(IPEndPoint recipient, int sequence)
         {
             _dictionary[recipient].Remove(msg => msg.Sequence == sequence);
         }
 
-        private void EnsureAddressInsertion(Address recipient)
+        private void EnsureAddressInsertion(IPEndPoint recipient)
         {
             if (!_dictionary.ContainsKey(recipient))
             {
