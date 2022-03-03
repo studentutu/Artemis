@@ -38,6 +38,32 @@ namespace Artemis.Clients
                 handler.Invoke(new Message<T>((T) message.Payload, sender));
             });
         }
+        
+        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken ct = default)
+        {
+            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
+        }
+
+        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, TimeSpan timeout, CancellationToken ct = default)
+        {
+            var timeoutCts = new CancellationTokenSource(timeout);
+            var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
+
+            var request = new Request(obj);
+            var tcs = new TaskCompletionSource<object>();
+            _responses.Add(request.Id, tcs);
+            SendReliableMessage(request, recepient, globalCts.Token);
+            globalCts.Token.Register(() => CancelRequest(tcs, request));
+
+            object DisposeAndReturn(Task<object> task)
+            {
+                timeoutCts.Dispose();
+                globalCts.Dispose();
+                return task.Result;
+            }
+
+            return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
+        }
 
         public void RegisterRequestHandler<T>(Action<Request<T>> handler)
         {
@@ -101,32 +127,6 @@ namespace Artemis.Clients
                 // It can happen because of latency ¯\_(ツ)_/¯
                 Debug.LogWarning("Received a response for a request the client has cancelled");
             }
-        }
-
-        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken ct = default)
-        {
-            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
-        }
-
-        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, TimeSpan timeout, CancellationToken ct = default)
-        {
-            var timeoutCts = new CancellationTokenSource(timeout);
-            var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
-
-            var request = new Request(obj);
-            var tcs = new TaskCompletionSource<object>();
-            _responses.Add(request.Id, tcs);
-            SendReliableMessage(request, recepient, globalCts.Token);
-            globalCts.Token.Register(() => CancelRequest(tcs, request));
-
-            object DisposeAndReturn(Task<object> task)
-            {
-                timeoutCts.Dispose();
-                globalCts.Dispose();
-                return task.Result;
-            }
-
-            return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
         }
 
         private void CancelRequest(TaskCompletionSource<object> tcs, Request request)
