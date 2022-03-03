@@ -4,9 +4,21 @@
   "version": "0.0.1",
   "unity": "2019.4",
   "description": "A layered rUDP client for Unity",
-  "keywords": ["udp", "rUDP", "Networking", "Multiplayer"],
+  "keywords": [
+    "udp",
+    "rUDP",
+    "Networking",
+    "Multiplayer"
+  ],
   "license": "MIT",
   "documentationUrl": "https://github.com/gustavopsantos/artemis",
   "changelogUrl": "https://github.com/gustavopsantos/artemis/releases",
-  "licensesUrl": "https://github.com/gustavopsantos/artemis/blob/main/LICENSE"
+  "licensesUrl": "https://github.com/gustavopsantos/artemis/blob/main/LICENSE",
+  "samples": [
+    {
+      "displayName": "PingPong",
+      "description": "Contains client that will request ping and a server that responses ping requests",
+      "path": "Samples~/PingPong"
+    }
+  ]
 }

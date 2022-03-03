@@ -1,0 +1,16 @@
+{
+    "name": "Artemis.PingPong",
+    "rootNamespace": "",
+    "references": [
+        "GUID:dd55358ebb0288445b0d9508c3b28319"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
