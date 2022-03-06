@@ -6,19 +6,34 @@ namespace Artemis.Utilities
 {
     public static class TasQ
     {
-        public static async Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeout, CancellationToken ct)
+        public static Task<T> TimeoutAfter<T>(this Task<T> task, TimeSpan timeout)
         {
-            using (var cts = CancellationTokenSource.CreateLinkedTokenSource(ct))
+            var proxy = new TaskCompletionSource<T>();
+
+            void TimeoutTask(object _)
             {
-                var timeoutTask = Task.Delay(timeout, cts.Token);
+                proxy.SetException(new TimeoutException());
+            }
 
-                if (await Task.WhenAny(task, timeoutTask) == timeoutTask)
-                {
-                    throw new TaskCanceledException();
-                }
+            var timer = new Timer(TimeoutTask, null, timeout, Timeout.InfiniteTimeSpan);
 
-                cts.Cancel();
-                return await task;
+            task.ContinueWith(t =>
+            {
+                timer.Dispose();
+                ForwardResult(t, proxy);
+            });
+
+            return proxy.Task;
+        }
+        
+        public static void ForwardResult<T>(this Task<T> task, TaskCompletionSource<T> proxy)
+        {
+            switch (task.Status)
+            {
+                case TaskStatus.RanToCompletion: proxy.TrySetResult(task.Result); break;
+                case TaskStatus.Canceled: proxy.TrySetCanceled(); break;
+                case TaskStatus.Faulted: proxy.TrySetException(task.Exception); break;
+                default: throw new Exception(task.Status.ToString());
             }
         }
         

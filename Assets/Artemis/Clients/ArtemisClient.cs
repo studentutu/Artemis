@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Artemis.Packets;
 using Artemis.Settings;
 using Artemis.UserInterface;
+using Artemis.Utilities;
 using UnityEngine;
 
 namespace Artemis.Clients
@@ -46,30 +47,14 @@ namespace Artemis.Clients
             });
         }
         
-        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken ct = default)
+        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken cancellationToken = default)
         {
-            return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
-        }
-
-        public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, TimeSpan timeout, CancellationToken ct = default)
-        {
-            var timeoutCts = new CancellationTokenSource(timeout);
-            var globalCts = CancellationTokenSource.CreateLinkedTokenSource(timeoutCts.Token, ct);
-
             var request = new Request(obj);
             var tcs = new TaskCompletionSource<object>();
             _responses.Add(request.Id, tcs);
-            SendReliableMessage(request, recepient, globalCts.Token);
-            globalCts.Token.Register(() => CancelRequest(tcs, request));
-
-            object DisposeAndReturn(Task<object> task)
-            {
-                timeoutCts.Dispose();
-                globalCts.Dispose();
-                return task.Result;
-            }
-
-            return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
+            SendReliableMessage(request, recepient, cancellationToken);
+            cancellationToken.Register(() => CancelRequest(tcs, request));
+            return tcs.Task.TimeoutAfter(Configuration.RequestTimeout);
         }
 
         internal override void HandleMessage(Message message, IPEndPoint sender)
