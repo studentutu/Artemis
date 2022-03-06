@@ -39,6 +39,14 @@ namespace Artemis.Clients
             });
         }
         
+        public void RegisterRequestHandler<T>(Action<Request<T>> handler)
+        {
+            _requestHandlers.Add(typeof(T), (request, sender) =>
+            {
+                handler.Invoke(new Request<T>(request.Id, (T) request.Payload, sender, this));
+            });
+        }
+        
         public Task<object> RequestAsync<T>(T obj, IPEndPoint recepient, CancellationToken ct = default)
         {
             return RequestAsync(obj, recepient, Configuration.RequestTimeout, ct);
@@ -63,14 +71,6 @@ namespace Artemis.Clients
             }
 
             return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
-        }
-
-        public void RegisterRequestHandler<T>(Action<Request<T>> handler)
-        {
-            _requestHandlers.Add(typeof(T), (request, sender) =>
-            {
-                handler.Invoke(new Request<T>(request.Id, (T) request.Payload, sender, this));
-            });
         }
 
         protected override void HandleMessage(Message message, IPEndPoint sender)
