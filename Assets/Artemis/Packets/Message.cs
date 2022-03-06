@@ -4,7 +4,7 @@ using Artemis.ValueObjects;
 namespace Artemis.Packets
 {
     [Serializable]
-    public class Message
+    internal class Message
     {
         public readonly int Sequence;
         public readonly object Payload;

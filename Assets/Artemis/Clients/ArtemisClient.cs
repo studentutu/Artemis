@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Artemis.Packets;
 using Artemis.Settings;
 using Artemis.UserInterface;
-using Artemis.ValueObjects;
 using UnityEngine;
 
 namespace Artemis.Clients
@@ -73,7 +72,7 @@ namespace Artemis.Clients
             return tcs.Task.ContinueWith(DisposeAndReturn, globalCts.Token);
         }
 
-        protected override void HandleMessage(Message message, IPEndPoint sender)
+        internal override void HandleMessage(Message message, IPEndPoint sender)
         {
             switch (message.Payload)
             {
@@ -104,7 +103,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleRequest(Request request, IPEndPoint sender)
+        private void HandleRequest(Request request, IPEndPoint sender)
         {
             if (_requestHandlers.TryGetValue(request.Payload.GetType(), out var handler))
             {
@@ -116,7 +115,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleResponse(Response response, IPEndPoint sender)
+        private void HandleResponse(Response response, IPEndPoint sender)
         {
             if (_responses.Remove(response.Id, out var tcs))
             {

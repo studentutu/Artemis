@@ -3,7 +3,7 @@
 namespace Artemis.Packets
 {
     [Serializable]
-    public class Response
+    internal class Response
     {
         public readonly Guid Id;
         public readonly object Payload;

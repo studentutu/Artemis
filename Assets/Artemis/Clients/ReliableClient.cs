@@ -92,7 +92,7 @@ namespace Artemis.Clients
             }
         }
 
-        protected virtual void HandleMessage(Message message, IPEndPoint sender)
+        internal virtual void HandleMessage(Message message, IPEndPoint sender)
         {
             Debug.Log($"Received message containing {message.Payload.GetType().FullName} from {sender}");
         }
