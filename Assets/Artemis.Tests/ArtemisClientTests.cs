@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace Tests
 {
-    public class Artemis
+    public class ArtemisClientTests
     {
         [Test]
         public void Request_WhenNobodyIsListening_ShouldTimeout()
