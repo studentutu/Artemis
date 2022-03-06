@@ -134,7 +134,7 @@ namespace Artemis.Clients
                 return; // Discard because is duplicate or out of sequence
             }
             
-            SendObject(new Ack {Sequence = message.Sequence}, sender);
+            SendObject(new Ack(message.Sequence), sender);
             _incomingSequenceStorage.Set(sender, DeliveryMethod.Reliable, message.Sequence);
             HandleMessage(message, sender);
         }

@@ -3,8 +3,13 @@
 namespace Artemis.Packets
 {
     [Serializable]
-    public class Ack
+    internal readonly struct Ack
     {
-        public int Sequence;
+        internal readonly int Sequence;
+
+        public Ack(int sequence)
+        {
+            Sequence = sequence;
+        }
     }
 }
