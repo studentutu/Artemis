@@ -58,12 +58,7 @@ namespace Artemis.Clients
             var message = EncapsulatePayloadInsideAMessage(payload, recipient, DeliveryMethod.Reliable);
             SendMessage(message, recipient);
 
-            lock (_retransmissionQueue)
-            {
-                _retransmissionQueue.Add(recipient, message);
-            }
-
-            ct.Register(() =>
+            var registration = ct.Register(() =>
             {
                 lock (_retransmissionQueue)
                 {
@@ -71,6 +66,11 @@ namespace Artemis.Clients
                     _retransmissionQueue.Remove(recipient, message.Sequence);
                 }
             });
+            
+            lock (_retransmissionQueue)
+            {
+                _retransmissionQueue.Add(recipient, message, registration);
+            }
         }
 
         private void RetransmitReliableMessages()
